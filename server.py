@@ -1,4 +1,4 @@
-import os, sys, http.server, webbrowser
+import os, http.server, webbrowser
 from http.server import SimpleHTTPRequestHandler
 
 

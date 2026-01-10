@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <script>
-      var d_d = new Date();
-      d_d = new Date(
-        Date.UTC(d_d.getFullYear(), d_d.getMonth(), d_d.getDate())
-      );
-      d_d.setUTCDate(d_d.getUTCDate() + 4 - (d_d.getUTCDay() || 7));
-      var yearStart = new Date(Date.UTC(d_d.getUTCFullYear(), 0, 1));
-      var weekNo = Math.ceil(((d_d - yearStart) / 86400000 + 1) / 7);
-    </script>
     <meta charset="UTF-8" />
     <title>Minesweeper Pro | Play Online</title>
     <meta
@@ -52,7 +43,6 @@
         cursor: default;
         padding: 1px 1px 2px 1px;
       }
-
       .mmi {
         padding: 0px 4px 1px 4px;
         border: 1px solid transparent;
@@ -280,7 +270,6 @@
     </style>
     <link rel="shortcut icon" type="image/x-icon" href="media/favicon.ico" />
     <link rel="icon" type="image/png" href="media/icon.png" />
-    <link rel="canonical" href="https://minesweeper-pro.com/" />
     <meta property="og:image" content="media/cover.png" />
     <style>
       @keyframes slide-in-one-tap {
@@ -560,7 +549,7 @@
         color: #373737;
       }
       .fb_dialog_close_icon {
-        background: url(https://connect.facebook.net/rsrc.php/v4/yq/r/IE9JII6Z1Ys.png)
+        background: url(media/IE9JII6Z1Ys.png)
           no-repeat scroll 0 0 transparent;
         cursor: pointer;
         display: block;
@@ -582,11 +571,11 @@
         z-index: -1;
       }
       .fb_dialog_close_icon:hover {
-        background: url(https://connect.facebook.net/rsrc.php/v4/yq/r/IE9JII6Z1Ys.png)
+        background: url(media/IE9JII6Z1Ys.png)
           no-repeat scroll 0 -15px transparent;
       }
       .fb_dialog_close_icon:active {
-        background: url(https://connect.facebook.net/rsrc.php/v4/yq/r/IE9JII6Z1Ys.png)
+        background: url(media/IE9JII6Z1Ys.png)
           no-repeat scroll 0 -30px transparent;
       }
       .fb_dialog_iframe {
@@ -601,7 +590,7 @@
         margin: 0;
       }
       .fb_dialog_content .dialog_title > span {
-        background: url(https://connect.facebook.net/rsrc.php/v4/yd/r/Cou7n-nqK52.gif)
+        background: url(media/Cou7n-nqK52.gif)
           no-repeat 5px 50%;
         float: left;
         padding: 5px 0 7px 26px;
@@ -617,7 +606,7 @@
         width: 100%;
       }
       .fb_dialog.fb_dialog_mobile.loading {
-        background: url(https://connect.facebook.net/rsrc.php/v4/ya/r/3rhSv5V8j3o.gif)
+        background: url(media/3rhSv5V8j3o.gif)
           #fff no-repeat 50% 50%;
         min-height: 100%;
         min-width: 100%;
@@ -722,7 +711,7 @@
         vertical-align: middle;
       }
       .fb_dialog_content .dialog_content {
-        background: url(https://connect.facebook.net/rsrc.php/v4/y9/r/jKEcVPZFk-2.gif)
+        background: url(media/jKEcVPZFk-2.gif)
           no-repeat 50% 50%;
         border: 1px solid #4a4a4a;
         border-bottom: 0;
@@ -744,7 +733,7 @@
       #fb_dialog_loader_spinner {
         animation: rotateSpinner 1.2s linear infinite;
         background-color: transparent;
-        background-image: url(https://connect.facebook.net/rsrc.php/v4/yD/r/t-wz8gw1xG1.png);
+        background-image: url(media/t-wz8gw1xG1.png);
         background-position: 50% 50%;
         background-repeat: no-repeat;
         height: 24px;
@@ -789,6 +778,15 @@
         width: 100%;
       }
     </style>
+    <script>
+      var d_d = new Date();
+      d_d = new Date(
+        Date.UTC(d_d.getFullYear(), d_d.getMonth(), d_d.getDate())
+      );
+      d_d.setUTCDate(d_d.getUTCDate() + 4 - (d_d.getUTCDay() || 7));
+      var yearStart = new Date(Date.UTC(d_d.getUTCFullYear(), 0, 1));
+      var weekNo = Math.ceil(((d_d - yearStart) / 86400000 + 1) / 7);
+    </script>
   </head>
   <body data-new-gr-c-s-check-loaded="14.1268.0" data-gr-ext-installed="">
     <div id="fb-root" class="fb_reset">
@@ -1258,7 +1256,6 @@
         >Minesweeper</a
       >
     </div>
-
     <div
       id="doptions"
       class="dialog"
@@ -1418,7 +1415,6 @@
       <div class="bsep">&nbsp;</div>
       <div id="bcoptions" class="button">Cancel</div>
     </div>
-
     <div
       id="dstats"
       class="dialog"
@@ -1555,7 +1551,6 @@
       <div class="bsep">&nbsp;</div>
       <div id="bcstats" class="button">Close</div>
     </div>
-
     <div
       id="dhelp"
       class="dialog"
@@ -1573,7 +1568,6 @@
         <b>Like us on Facebook!</b> You can always post your question there.
       </p>
       <div class="fblpc" id="fblpchelp" style="text-align: left">&nbsp;</div>
-
       <h1>About Minesweeper</h1>
       <img
         src="/media/minesweeper.png"
@@ -1808,36 +1802,6 @@
             s();
           }
         </script>
-        <script type="application/ld+json">
-          {
-            "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            "name": "Minesweeper Pro",
-            "url": "https://minesweeper-pro.com/",
-            "author": {
-              "@type": "Organization",
-              "@id": "https://simiade.com/#organization"
-            },
-            "description": "Fullscreen, free Minesweeper online with Large Tiles.",
-            "applicationCategory": "GameApplication",
-            "operatingSystem": "any",
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "worstRating": 1,
-              "bestRating": 5,
-              "ratingValue": 4.9,
-              "ratingCount": 7541
-            },
-            "image": "https://minesweeper-pro.com/media/minesweeper.png",
-            "screenshot": "https://minesweeper-pro.com/media/minesweeper.png",
-            "offers": {
-              "@type": "Offer",
-              "category": "free",
-              "price": 0,
-              "priceCurrency": "USD"
-            }
-          }
-        </script>
       </p>
       <h2>Contact information</h2>
       <p>
@@ -1883,7 +1847,6 @@
       <div id="bchelp" class="button">Close</div>
       <div style="margin: 10px"></div>
     </div>
-
     <div
       id="playspace"
       style="left: 20px; top: 133px; width: 328px; height: 412px"
@@ -6605,7 +6568,6 @@
                       e && e.stop && e.stop.call(this, !0),
                       b = f.length;
                     b--;
-
                   )
                     f[b].elem === this &&
                       f[b].queue === a &&
@@ -8658,7 +8620,6 @@
         tapflag = "A click or a tap plants a flag",
         loadingpleasewait = "Loading. Please wait...",
         requesthintp = "Request a hint (press h)";
-
       var fbpage =
         '<div class="fb-page" data-href="https://www.facebook.com/Minesweeper-Pro-819653421531906/" data-width="300" data-height="155" data-small-header="true" data-adapt-container-width="false" data-hide-cover="false" data-show-facepile="true"><blockquote cite="https://www.facebook.com/Minesweeper-Pro-819653421531906/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/Minesweeper-Pro-819653421531906/">Minesweeper Pro</a></blockquote></div>';
       var playspace,
@@ -9257,7 +9218,6 @@
                           var i = e[1].charCodeAt(o) - 65,
                             s = 4 * o + 3 < game.f ? 4 * o + 3 : game.f - 1;
                           4 * o <= s;
-
                         ) {
                           var a = i % 2;
                           (game.field[s] = 1 == a ? -1 : 0), (i >>= 1), s--;
@@ -9530,7 +9490,6 @@
             a = ((t = Math.floor(t / 60)) % 60).toString(),
             o = (t = Math.floor(t / 60)).toString();
           s.length < 2;
-
         )
           s = "0" + s;
         for (; a.length < 2; ) a = "0" + a;
@@ -9783,7 +9742,6 @@
         for (
           var t = Math.round(t / 1e3), e = (t % 60).toString();
           e.length < 2;
-
         )
           e = "0" + e;
         for (var o = ((t = Math.floor(t / 60)) % 60).toString(); o.length < 2; )
@@ -10180,13 +10138,6 @@
           "visible" !== document.visibilityState;
         });
     </script>
-    <script
-      defer=""
-      src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015"
-      integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ=="
-      data-cf-beacon='{"version":"2024.11.0","token":"11a0a43ac3524c10a81beb89bef83a4c","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}'
-      crossorigin="anonymous"
-    ></script>
     <div id="ti-host">
       <template shadowrootmode="open"
         ><link
@@ -10237,15 +10188,15 @@
   </body>
   <link
     rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&amp;display=swap"
+    href="css/css1.css"
     type="text/css"
   /><link
     rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&amp;display=swap"
+    href="css/css2.css"
     type="text/css"
   /><link
     rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&amp;display=swap"
+    href="css/css3.css"
     type="text/css"
   /><grammarly-desktop-integration data-grammarly-shadow-root="true"
     ><template shadowrootmode="open"
@@ -10278,7 +10229,7 @@
       ></div></template></grammarly-desktop-integration
   ><link
     rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&amp;display=swap"
+    href="css/css4.css"
     type="text/css"
   />
   <div style="all: initial !important">
@@ -10286,7 +10237,7 @@
   </div>
   <link
     rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&amp;display=swap"
+    href="css/css5.css"
     type="text/css"
   />
   <div style="all: initial !important">

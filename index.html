@@ -884,7 +884,7 @@
                           , e = ["click", "mouseover", "mouseout"]
                           , o = "rate_data"
                           , d = function(n) {
-                            for (let i = 0; i < 5; i++) {
+                            for (let i = 0; i < 5; ++i) {
                                 r[i].innerText = i < n ? "★" : "☆";
                                 t[i].style.display = "none";
                             }
@@ -921,7 +921,7 @@
                                 s();
                             }
                         }
-                        for (let i = 0; i < 15; i++)
+                        for (let i = 0; i < 15; ++i)
                             r[0 | i / 3].addEventListener(e[i % 3], h);
                         s();
                     }
@@ -989,17 +989,17 @@
         <div id="playspace">
             <script>
                 var tab = [imgs.w, imgs.w, imgs.dg, imgs.dg, imgs.ul, imgs.ul, imgs.dg, imgs.dg, imgs.w, imgs.w, imgs.br, imgs.br, imgs.dg, imgs.dg, imgs.w, imgs.w, imgs.br, imgs.br, imgs.w, imgs.w, imgs.dg, imgs.dg, imgs.ul, imgs.ul];
-                for (var i = 0; i < 18; i++)
+                for (var i = 0; i < 18; ++i)
                     pim(tab[i], "eb" + i);
                 pim(imgs.f0, "face");
-                for (var i = 0; i < 6; i++)
+                for (var i = 0; i < 6; ++i)
                     pim(imgs.d0, "dd" + i);
             </script>
             <div id="board"></div>
         </div>
         <div id="toolbar">
             <script>
-                for (var i = 18; i < 24; i++)
+                for (var i = 18; i < 24; ++i)
                     pim(tab[i], "eb" + i);
                 pim(imgs.zi0, "zoomin");
                 pim(imgs.zo0, "zoomout");
@@ -1017,7 +1017,7 @@
             {
                 function css(s, p, v) {
                     let h = document.querySelectorAll(s);
-                    for (let i = 0; i < h.length; i++)
+                    for (let i = 0; i < h.length; ++i)
                         h[i].style[p] = v;
                 }
                 let x = "visibility"
@@ -1108,7 +1108,7 @@
                     h++),
                     "object" == typeof g || n.isFunction(g) || (g = {}),
                     h === i && (g = this,
-                    h--); i > h; h++)
+                    h--); i > h; ++h)
                         if (null != (a = arguments[h]))
                             for (b in a)
                                 c = g[b],
@@ -1172,7 +1172,7 @@
                     each: function(a, b) {
                         var c, d = 0;
                         if (s(a)) {
-                            for (c = a.length; c > d; d++)
+                            for (c = a.length; c > d; ++d)
                                 if (b.call(a[d], d, a[d]) === !1)
                                     break
                         } else
@@ -1193,13 +1193,13 @@
                         return null == b ? -1 : h.call(b, a, c)
                     },
                     merge: function(a, b) {
-                        for (var c = +b.length, d = 0, e = a.length; c > d; d++)
+                        for (var c = +b.length, d = 0, e = a.length; c > d; ++d)
                             a[e++] = b[d];
                         return a.length = e,
                         a
                     },
                     grep: function(a, b, c) {
-                        for (var d, e = [], f = 0, g = a.length, h = !c; g > f; f++)
+                        for (var d, e = [], f = 0, g = a.length, h = !c; g > f; ++f)
                             d = !b(a[f], f),
                             d !== h && e.push(a[f]);
                         return e
@@ -1207,7 +1207,7 @@
                     map: function(a, b, c) {
                         var d, e, g = 0, h = [];
                         if (s(a))
-                            for (d = a.length; d > g; g++)
+                            for (d = a.length; d > g; ++g)
                                 e = b(a[g], g, c),
                                 null != e && h.push(e);
                         else
@@ -1247,7 +1247,7 @@
                         return a === b && (l = !0),
                         0
                     }, C = 1 << 31, D = {}.hasOwnProperty, E = [], F = E.pop, G = E.push, H = E.push, I = E.slice, J = function(a, b) {
-                        for (var c = 0, d = a.length; d > c; c++)
+                        for (var c = 0, d = a.length; d > c; ++c)
                             if (a[c] === b)
                                 return c;
                         return -1
@@ -1897,7 +1897,7 @@
                     }
                     ;
                     function qa(a) {
-                        for (var b = 0, c = a.length, d = ""; c > b; b++)
+                        for (var b = 0, c = a.length, d = ""; c > b; ++b)
                             d += a[b].value;
                         return d
                     }
@@ -1940,12 +1940,12 @@
                         : a[0]
                     }
                     function ta(a, b, c) {
-                        for (var d = 0, e = b.length; e > d; d++)
+                        for (var d = 0, e = b.length; e > d; ++d)
                             fa(a, b[d], c);
                         return c
                     }
                     function ua(a, b, c, d, e) {
-                        for (var f, g = [], h = 0, i = a.length, j = null != b; i > h; h++)
+                        for (var f, g = [], h = 0, i = a.length, j = null != b; i > h; ++h)
                             (f = a[h]) && (c && !c(f, d, e) || (g.push(f),
                             j && b.push(h)));
                         return g
@@ -1991,13 +1991,13 @@
                             return b = null,
                             e
                         }
-                        ]; f > i; i++)
+                        ]; f > i; ++i)
                             if (c = d.relative[a[i].type])
                                 m = [ra(sa(m), c)];
                             else {
                                 if (c = d.filter[a[i].type].apply(null, a[i].matches),
                                 c[u]) {
-                                    for (e = ++i; f > e; e++)
+                                    for (e = ++i; f > e; ++e)
                                         if (d.relative[a[e].type])
                                             break;
                                     return va(i > 1 && sa(m), i > 1 && qa(a.slice(0, i - 1).concat({
@@ -2013,7 +2013,7 @@
                           , e = a.length > 0
                           , f = function(f, g, h, i, k) {
                             var l, o, q, r = 0, s = "0", t = f && [], u = [], v = j, x = f || e && d.find.TAG("*", k), y = w += null == v ? 1 : Math.random() || .1, z = x.length;
-                            for (k && (j = g === n || g || k); s !== z && null != (l = x[s]); s++) {
+                            for (k && (j = g === n || g || k); s !== z && null != (l = x[s]); ++s) {
                                 if (e && l) {
                                     o = 0,
                                     g || l.ownerDocument === n || (m(l),
@@ -2177,11 +2177,11 @@
                         var b, c = this.length, d = [], e = this;
                         if ("string" != typeof a)
                             return this.pushStack(n(a).filter(function() {
-                                for (b = 0; c > b; b++)
+                                for (b = 0; c > b; ++b)
                                     if (n.contains(e[b], this))
                                         return !0
                             }));
-                        for (b = 0; c > b; b++)
+                        for (b = 0; c > b; ++b)
                             n.find(a, e[b], d);
                         return d = this.pushStack(c > 1 ? n.unique(d) : d),
                         d.selector = this.selector ? this.selector + " " + a : a,
@@ -2242,13 +2242,13 @@
                         var b = n(a, this)
                           , c = b.length;
                         return this.filter(function() {
-                            for (var a = 0; c > a; a++)
+                            for (var a = 0; c > a; ++a)
                                 if (n.contains(this, b[a]))
                                     return !0
                         })
                     },
                     closest: function(a, b) {
-                        for (var c, d = 0, e = this.length, f = [], g = w.test(a) || "string" != typeof a ? n(a, b || this.context) : 0; e > d; d++)
+                        for (var c, d = 0, e = this.length, f = [], g = w.test(a) || "string" != typeof a ? n(a, b || this.context) : 0; e > d; ++d)
                             for (c = this[d]; c && c !== b; c = c.parentNode)
                                 if (c.nodeType < 11 && (g ? g.index(c) > -1 : 1 === c.nodeType && n.find.matchesSelector(c, a))) {
                                     f.push(c);
@@ -2462,7 +2462,7 @@
                         if (d > 1)
                             for (i = new Array(d),
                             j = new Array(d),
-                            k = new Array(d); d > b; b++)
+                            k = new Array(d); d > b; ++b)
                                 c[b] && n.isFunction(c[b].promise) ? c[b].promise().progress(h(b, j, i)).done(h(b, k, c)).fail(g.reject) : --f;
                         return f || g.resolveWith(k, c),
                         g.promise()
@@ -2517,7 +2517,7 @@
                     }
                     )),
                     b))
-                        for (; i > h; h++)
+                        for (; i > h; ++h)
                             b(a[h], c, g ? d : d.call(a[h], h, b(a[h], c)));
                     return e ? a : j ? b.call(a) : i ? b(a[0], c) : f
                 }
@@ -2787,12 +2787,12 @@
                     return void 0 === b || b && n.nodeName(a, b) ? n.merge([a], c) : c
                 }
                 function aa(a, b) {
-                    for (var c = 0, d = a.length; d > c; c++)
+                    for (var c = 0, d = a.length; d > c; ++c)
                         N.set(a[c], "globalEval", !b || N.get(b[c], "globalEval"))
                 }
                 var ba = /<|&#?\w+;/;
                 function ca(a, b, c, d, e) {
-                    for (var f, g, h, i, j, k, l = b.createDocumentFragment(), m = [], o = 0, p = a.length; p > o; o++)
+                    for (var f, g, h, i, j, k, l = b.createDocumentFragment(), m = [], o = 0, p = a.length; p > o; ++o)
                         if (f = a[o],
                         f || 0 === f)
                             if ("object" === n.type(f))
@@ -2978,7 +2978,7 @@
                             for (; i !== this; i = i.parentNode || this)
                                 if (1 === i.nodeType && (i.disabled !== !0 || "click" !== a.type)) {
                                     for (d = [],
-                                    c = 0; h > c; c++)
+                                    c = 0; h > c; ++c)
                                         f = b[c],
                                         e = f.selector + " ",
                                         void 0 === d[e] && (d[e] = f.needsContext ? n(e, this).index(i) > -1 : n.find(e, this, null, [i]).length),
@@ -3172,7 +3172,7 @@
                             g.events = {};
                             for (e in j)
                                 for (c = 0,
-                                d = j[e].length; d > c; c++)
+                                d = j[e].length; d > c; ++c)
                                     n.event.add(b, e, j[e][c])
                         }
                         O.hasData(a) && (h = O.access(a),
@@ -3198,7 +3198,7 @@
                     1 === e.childNodes.length && (e = g),
                     g || d)) {
                         for (h = n.map(_(e, "script"), qa),
-                        i = h.length; o > m; m++)
+                        i = h.length; o > m; ++m)
                             j = e,
                             m !== p && (j = n.clone(j, !0, !0),
                             i && n.merge(h, _(j, "script"))),
@@ -3206,14 +3206,14 @@
                         if (i)
                             for (k = h[h.length - 1].ownerDocument,
                             n.map(h, ra),
-                            m = 0; i > m; m++)
+                            m = 0; i > m; ++m)
                                 j = h[m],
                                 Z.test(j.type || "") && !N.access(j, "globalEval") && n.contains(k, j) && (j.src ? n._evalUrl && n._evalUrl(j.src) : n.globalEval(j.textContent.replace(oa, "")))
                     }
                     return a
                 }
                 function va(a, b, c) {
-                    for (var d, e = b ? n.filter(b, a) : a, f = 0; null != (d = e[f]); f++)
+                    for (var d, e = b ? n.filter(b, a) : a, f = 0; null != (d = e[f]); ++f)
                         c || 1 !== d.nodeType || n.cleanData(_(d)),
                         d.parentNode && (c && n.contains(d.ownerDocument, d) && aa(_(d, "script")),
                         d.parentNode.removeChild(d));
@@ -3229,14 +3229,14 @@
                             for (g = _(h),
                             f = _(a),
                             d = 0,
-                            e = f.length; e > d; d++)
+                            e = f.length; e > d; ++d)
                                 ta(f[d], g[d]);
                         if (b)
                             if (c)
                                 for (f = f || _(a),
                                 g = g || _(h),
                                 d = 0,
-                                e = f.length; e > d; d++)
+                                e = f.length; e > d; ++d)
                                     sa(f[d], g[d]);
                             else
                                 sa(a, h);
@@ -3245,7 +3245,7 @@
                         h
                     },
                     cleanData: function(a) {
-                        for (var b, c, d, e = n.event.special, f = 0; void 0 !== (c = a[f]); f++)
+                        for (var b, c, d, e = n.event.special, f = 0; void 0 !== (c = a[f]); ++f)
                             if (L(c)) {
                                 if (b = c[N.expando]) {
                                     if (b.events)
@@ -3299,7 +3299,7 @@
                         })
                     },
                     empty: function() {
-                        for (var a, b = 0; null != (a = this[b]); b++)
+                        for (var a, b = 0; null != (a = this[b]); ++b)
                             1 === a.nodeType && (n.cleanData(_(a, !1)),
                             a.textContent = "");
                         return this
@@ -3321,7 +3321,7 @@
                             if ("string" == typeof a && !la.test(a) && !$[(Y.exec(a) || ["", ""])[1].toLowerCase()]) {
                                 a = n.htmlPrefilter(a);
                                 try {
-                                    for (; d > c; c++)
+                                    for (; d > c; ++c)
                                         b = this[c] || {},
                                         1 === b.nodeType && (n.cleanData(_(b, !1)),
                                         b.innerHTML = a);
@@ -3348,7 +3348,7 @@
                     replaceAll: "replaceWith"
                 }, function(a, b) {
                     n.fn[a] = function(a) {
-                        for (var c, d = [], e = n(a), f = e.length - 1, h = 0; f >= h; h++)
+                        for (var c, d = [], e = n(a), f = e.length - 1, h = 0; f >= h; ++h)
                             c = h === f ? this : this.clone(!0),
                             n(e[h])[b](c),
                             g.apply(d, c.get());
@@ -3519,14 +3519,14 @@
                     return e + Oa(a, b, c || (g ? "border" : "content"), d, f) + "px"
                 }
                 function Qa(a, b) {
-                    for (var c, d, e, f = [], g = 0, h = a.length; h > g; g++)
+                    for (var c, d, e, f = [], g = 0, h = a.length; h > g; ++g)
                         d = a[g],
                         d.style && (f[g] = N.get(d, "olddisplay"),
                         c = d.style.display,
                         b ? (f[g] || "none" !== c || (d.style.display = ""),
                         "" === d.style.display && V(d) && (f[g] = N.access(d, "olddisplay", za(d.nodeName)))) : (e = V(d),
                         "none" === c && e || N.set(d, "olddisplay", e ? c : n.css(d, "display"))));
-                    for (g = 0; h > g; g++)
+                    for (g = 0; h > g; ++g)
                         d = a[g],
                         d.style && (b && "none" !== d.style.display && "" !== d.style.display || (d.style.display = b ? f[g] || "" : "none"));
                     return a
@@ -3619,7 +3619,7 @@
                 }, function(a, b) {
                     n.cssHooks[a + b] = {
                         expand: function(c) {
-                            for (var d = 0, e = {}, f = "string" == typeof c ? c.split(" ") : [c]; 4 > d; d++)
+                            for (var d = 0, e = {}, f = "string" == typeof c ? c.split(" ") : [c]; 4 > d; ++d)
                                 e[a + U[d] + b] = f[d] || f[d - 2] || f[0];
                             return e
                         }
@@ -3632,7 +3632,7 @@
                             var d, e, f = {}, g = 0;
                             if (n.isArray(b)) {
                                 for (d = Ca(a),
-                                e = b.length; e > g; g++)
+                                e = b.length; e > g; ++g)
                                     f[b[g]] = n.css(a, b[g], !1, d);
                                 return f
                             }
@@ -3726,7 +3726,7 @@
                     e
                 }
                 function Ya(a, b, c) {
-                    for (var d, e = (_a.tweeners[b] || []).concat(_a.tweeners["*"]), f = 0, g = e.length; g > f; f++)
+                    for (var d, e = (_a.tweeners[b] || []).concat(_a.tweeners["*"]), f = 0, g = e.length; g > f; ++f)
                         if (d = e[f].call(c, b, a))
                             return d
                 }
@@ -3816,7 +3816,7 @@
                     }), i = function() {
                         if (e)
                             return !1;
-                        for (var b = Sa || Wa(), c = Math.max(0, j.startTime + j.duration - b), d = c / j.duration || 0, f = 1 - d, g = 0, i = j.tweens.length; i > g; g++)
+                        for (var b = Sa || Wa(), c = Math.max(0, j.startTime + j.duration - b), d = c / j.duration || 0, f = 1 - d, g = 0, i = j.tweens.length; i > g; ++g)
                             j.tweens[g].run(f);
                         return h.notifyWith(a, [j, f, c]),
                         1 > f && i ? c : (h.resolveWith(a, [j]),
@@ -3843,14 +3843,14 @@
                               , d = b ? j.tweens.length : 0;
                             if (e)
                                 return this;
-                            for (e = !0; d > c; c++)
+                            for (e = !0; d > c; ++c)
                                 j.tweens[c].run(1);
                             return b ? (h.notifyWith(a, [j, 1, 0]),
                             h.resolveWith(a, [j, b])) : h.rejectWith(a, [j, b]),
                             this
                         }
                     }), k = j.props;
-                    for ($a(k, j.opts.specialEasing); g > f; f++)
+                    for ($a(k, j.opts.specialEasing); g > f; ++f)
                         if (d = _a.prefilters[f].call(j, a, k, j.opts))
                             return n.isFunction(d.stop) && (n._queueHooks(j.elem, j.opts.queue).stop = n.proxy(d.stop, d)),
                             d;
@@ -3875,7 +3875,7 @@
                     tweener: function(a, b) {
                         n.isFunction(a) ? (b = a,
                         a = ["*"]) : a = a.match(G);
-                        for (var c, d = 0, e = a.length; e > d; d++)
+                        for (var c, d = 0, e = a.length; e > d; ++d)
                             c = a[d],
                             _a.tweeners[c] = _a.tweeners[c] || [],
                             _a.tweeners[c].unshift(b)
@@ -3955,7 +3955,7 @@
                             b = f.length; b--; )
                                 f[b].elem === this && f[b].queue === a && (f[b].anim.stop(!0),
                                 f.splice(b, 1));
-                            for (b = 0; g > b; b++)
+                            for (b = 0; g > b; ++b)
                                 d[b] && d[b].finish && d[b].finish.call(this);
                             delete c.finish
                         })
@@ -3988,7 +3988,7 @@
                 n.timers = [],
                 n.fx.tick = function() {
                     var a, b = 0, c = n.timers;
-                    for (Sa = n.now(); b < c.length; b++)
+                    for (Sa = n.now(); b < c.length; ++b)
                         a = c[b],
                         a() || c[b] !== a || c.splice(b--, 1);
                     c.length || n.fx.stop(),
@@ -4256,7 +4256,7 @@
                         },
                         select: {
                             get: function(a) {
-                                for (var b, c, d = a.options, e = a.selectedIndex, f = "select-one" === a.type || 0 > e, g = f ? null : [], h = f ? e + 1 : d.length, i = 0 > e ? h : f ? e : 0; h > i; i++)
+                                for (var b, c, d = a.options, e = a.selectedIndex, f = "select-one" === a.type || 0 > e, g = f ? null : [], h = f ? e + 1 : d.length, i = 0 > e ? h : f ? e : 0; h > i; ++i)
                                     if (c = d[i],
                                     (c.selected || i === e) && (l.optDisabled ? !c.disabled : null === c.getAttribute("disabled")) && (!c.parentNode.disabled || !n.nodeName(c.parentNode, "optgroup"))) {
                                         if (b = n(c).val(),
@@ -5188,7 +5188,7 @@
                             h = i && i.length ? i[0] : c && c.length ? c[0] : r;
                             if (h)
                                 for (d = 0,
-                                v = u.length; d < v; d++)
+                                v = u.length; d < v; ++d)
                                     l = u[d],
                                     t[l] = h[l]
                         }
@@ -5347,7 +5347,7 @@
                         clickDistanceThreshold: 10,
                         resetTimerDuration: 1500
                     };
-                    for (x = 0; x < o.length; x++)
+                    for (x = 0; x < o.length; ++x)
                         e.event.special[o[x]] = U(o[x]);
                     y && n.addEventListener("click", function(t) {
                         var n = v.length, r = t.target, i, o, u, a, f, l;
@@ -5357,7 +5357,7 @@
                             S = e.vmouse.clickDistanceThreshold,
                             u = r;
                             while (u) {
-                                for (a = 0; a < n; a++) {
+                                for (a = 0; a < n; ++a) {
                                     f = v[a],
                                     l = 0;
                                     if (u === r && Math.abs(f.x - i) < S && Math.abs(f.y - o) < S || e.data(u, s) === f.touchID) {
@@ -5673,7 +5673,7 @@
                 document.cookie = t + "=" + e + ";" + i + ";path=/"
             }
             function getCookie(t) {
-                for (var e = t + "=", o = document.cookie.split(";"), i = 0; i < o.length; i++) {
+                for (var e = t + "=", o = document.cookie.split(";"), i = 0; i < o.length; ++i) {
                     for (var s = o[i]; " " == s.charAt(0); )
                         s = s.substring(1);
                     if (0 == s.indexOf(e))
@@ -5685,8 +5685,8 @@
                 return Math.floor(Math.random() * (e - t + 1)) + t
             }
             function scoutarea(t) {
-                for (var e = [], o = t % game.x, i = Math.floor(t / game.x), s = 0 == o ? 0 : o - 1; s <= (o == game.x - 1 ? o : 1 + o); s++)
-                    for (var a = 0 == i ? 0 : i - 1; a <= (i == game.y - 1 ? i : i + 1); a++)
+                for (var e = [], o = t % game.x, i = Math.floor(t / game.x), s = 0 == o ? 0 : o - 1; s <= (o == game.x - 1 ? o : 1 + o); ++s)
+                    for (var a = 0 == i ? 0 : i - 1; a <= (i == game.y - 1 ? i : i + 1); ++a)
                         e.push(s + a * game.x);
                 return e
             }
@@ -5697,14 +5697,14 @@
                 game.y = boarddims[options.board][1],
                 game.m = boarddims[options.board][2]),
                 game.f = game.x * game.y;
-                for (var t = tiles.length; t < game.f; t++) {
+                for (var t = tiles.length; t < game.f; ++t) {
                     var e = new Image(16,16);
                     e.id = "tile" + t,
                     $(board).append(e),
                     tiles.push(e)
                 }
                 if (tiles.length > game.f) {
-                    for (t = game.f; t < tiles.length; t++)
+                    for (t = game.f; t < tiles.length; ++t)
                         $(tiles[t]).remove();
                     tiles = tiles.slice(0, game.f)
                 }
@@ -5724,7 +5724,7 @@
                 UpdateMinesLeft(),
                 $("#tleft").text(game.tleft),
                 face.newface(imgs.f0);
-                for (var t = 3; t < 6; t++)
+                for (var t = 3; t < 6; ++t)
                     digits[t].src = imgs.d0;
                 clearInterval(timer)
             }
@@ -5756,7 +5756,7 @@
             function CreateField(t) {
                 if (1 == options.gen) {
                     game.field = Array.apply(null, Array(game.m)).map(Number.prototype.valueOf, -1).concat(Array.apply(null, Array(game.f - game.m)).map(Number.prototype.valueOf, 0));
-                    for (var e = 0; e < game.f - 1; e++) {
+                    for (var e = 0; e < game.f - 1; ++e) {
                         var o = random(e, game.f - 1)
                           , i = game.field[e];
                         game.field[e] = game.field[o],
@@ -5764,21 +5764,21 @@
                     }
                 }
                 if (2 == options.gen) {
-                    for (var s = Math.floor(t / game.x), a = t % game.x, t = 0 != a && a != game.x - 1 || 0 != s && s != game.y - 1 ? 0 == a || a == game.x - 1 || 0 == s || s == game.y - 1 ? 6 : 9 : 4, n = Array.apply(null, Array(game.m)).map(Number.prototype.valueOf, -1).concat(Array.apply(null, Array(game.f - game.m - t)).map(Number.prototype.valueOf, 0)), e = 0; e < n.length - 1; e++) {
+                    for (var s = Math.floor(t / game.x), a = t % game.x, t = 0 != a && a != game.x - 1 || 0 != s && s != game.y - 1 ? 0 == a || a == game.x - 1 || 0 == s || s == game.y - 1 ? 6 : 9 : 4, n = Array.apply(null, Array(game.m)).map(Number.prototype.valueOf, -1).concat(Array.apply(null, Array(game.f - game.m - t)).map(Number.prototype.valueOf, 0)), e = 0; e < n.length - 1; ++e) {
                         o = random(e, n.length - 1),
                         i = n[e];
                         n[e] = n[o],
                         n[o] = i
                     }
                     game.field = new Array(game.f);
-                    for (var l = 0, e = 0; e < game.x; e++)
-                        for (o = 0; o < game.y; o++)
+                    for (var l = 0, e = 0; e < game.x; ++e)
+                        for (o = 0; o < game.y; ++o)
                             1 < Math.abs(e - a) || 1 < Math.abs(o - s) ? (game.field[o * game.x + e] = n[l],
                             l++) : game.field[o * game.x + e] = 0
                 }
-                for (e = 0; e < game.f; e++)
+                for (e = 0; e < game.f; ++e)
                     if (-1 == game.field[e])
-                        for (var r = scoutarea(e), o = 0; o < r.length; o++)
+                        for (var r = scoutarea(e), o = 0; o < r.length; ++o)
                             0 <= game.field[r[o]] && game.field[r[o]]++;
                 game.populated = !0,
                 setTimeout(function() {
@@ -5793,7 +5793,7 @@
                 clearInterval(timer),
                 game.timeplayed = (new Date).getTime() - game.timestarted,
                 UpdateTime();
-                for (var t = [], e = 0; e < game.f; e++)
+                for (var t = [], e = 0; e < game.f; ++e)
                     -1 == game.field[e] && -3 == game.state[e] && (game.state[e] = -1,
                     t.push(e)),
                     -1 != game.field[e] && -4 == game.state[e] && (game.state[e] = -5,
@@ -5811,7 +5811,7 @@
                 game.timeplayed = (new Date).getTime() - game.timestarted,
                 UpdateTime(),
                 UpdateMinesLeft();
-                for (var t = [], e = 0; e < game.f; e++)
+                for (var t = [], e = 0; e < game.f; ++e)
                     game.state[e] < 0 && (game.state[e] = -4,
                     t.push(e));
                 UpdateTiles(t),
@@ -5857,10 +5857,10 @@
                         GameLost()),
                         !1;
                     game.state[t] = game.field[t];
-                    for (var s = 0; s < i.length; s++) {
+                    for (var s = 0; s < i.length; ++s) {
                         var a = i[s];
                         if (0 == game.field[a])
-                            for (var n = scoutarea(a), l = 0; l < n.length; l++)
+                            for (var n = scoutarea(a), l = 0; l < n.length; ++l)
                                 -3 == game.state[n[l]] && (game.state[n[l]] = game.field[n[l]],
                                 i.push(n[l]))
                     }
@@ -5885,7 +5885,7 @@
             function requesthint() {
                 if (game.populated && !game.stopped && null == state.hintinterval) {
                     game.cheated = !0;
-                    for (var t = game.x + " " + game.y + " " + game.m + "\n", e = 0; e < game.f; e++)
+                    for (var t = game.x + " " + game.y + " " + game.m + "\n", e = 0; e < game.f; ++e)
                         t += String.fromCharCode(75 + game.state[e]);
                     t += "\n",
                     loader.start(),
@@ -5939,7 +5939,7 @@
                             return loader.stop(),
                             nstatus.image.src = imgs.s2,
                             void (nstatus.tooltiptext = failedtocreateboard);
-                        for (var o = 0; o < e[1].length; o++)
+                        for (var o = 0; o < e[1].length; ++o)
                             for (var i = e[1].charCodeAt(o) - 65, s = 4 * o + 3 < game.f ? 4 * o + 3 : game.f - 1; 4 * o <= s; ) {
                                 var a = i % 2;
                                 game.field[s] = 1 == a ? -1 : 0,
@@ -5961,10 +5961,10 @@
             }
             function muncover(t) {
                 if (!(game.state[t] < 0)) {
-                    for (var e = scoutarea(t), o = 0, i = 0; i < e.length; i++)
+                    for (var e = scoutarea(t), o = 0, i = 0; i < e.length; ++i)
                         -4 == game.state[e[i]] && o++;
                     if (game.state[t] == o)
-                        for (i = 0; i < e.length; i++)
+                        for (i = 0; i < e.length; ++i)
                             if (-3 == game.state[e[i]])
                                 if (!uncover(e[i]) && options.disarm)
                                     return
@@ -5991,7 +5991,7 @@
                 t.top = layout.top + 44 * options.zoom + "px",
                 $(playspace).css(t),
                 $(face.image).css(dim(8 * game.x - 3, 14, 26, 26));
-                for (var e = [[0, 0, 18 + 16 * game.x, 62 + 16 * game.y], [8, 8, 2 + 16 * game.x, 36], [8, 52, 2 + 16 * game.x, 2 + 16 * game.y], [0, 0, 202, 36]], o = 0; o < 4; o++) {
+                for (var e = [[0, 0, 18 + 16 * game.x, 62 + 16 * game.y], [8, 8, 2 + 16 * game.x, 36], [8, 52, 2 + 16 * game.x, 2 + 16 * game.y], [0, 0, 202, 36]], o = 0; o < 4; ++o) {
                     var i = e[o][0]
                       , s = e[o][1]
                       , a = e[o][2]
@@ -6003,19 +6003,19 @@
                     $(ebs[6 * o + 4]).css(dim(i + a, s, 2, 2)),
                     $(ebs[6 * o + 5]).css(dim(i, s + n, 2, 2))
                 }
-                for (o = 0; o < 3; o++)
+                for (o = 0; o < 3; ++o)
                     $(digits[o]).css(dim(15 + 13 * o, 15, 13, 23));
-                for (o = 3; o < 6; o++)
+                for (o = 3; o < 6; ++o)
                     $(digits[o]).css(dim(16 * game.x - 73 + 13 * o, 15, 13, 23));
                 if (game.x < 8)
-                    for (o = 0; o < 6; o++)
+                    for (o = 0; o < 6; ++o)
                         $(digits[o]).css("visibility", "hidden");
                 else
-                    for (o = 0; o < 6; o++)
+                    for (o = 0; o < 6; ++o)
                         $(digits[o]).css("visibility", "visible");
                 $(board).css(dim(10, 54, 16 * game.x, 16 * game.y));
-                for (o = 0; o < game.y; o++)
-                    for (var l = 0; l < game.x; l++)
+                for (o = 0; o < game.y; ++o)
+                    for (var l = 0; l < game.x; ++l)
                         $(tiles[o * game.x + l]).css(dim(16 * l, 16 * o, 16, 16));
                 (t = dim(layout.left, layout.top, 204, 38)).left = layout.left + "px",
                 t.top = layout.top + "px",
@@ -6187,12 +6187,12 @@
             }
             function UpdateTiles(t) {
                 if (null != t)
-                    for (o = 0; o < t.length; o++) {
+                    for (o = 0; o < t.length; ++o) {
                         var e = t[o];
                         tiles[e].src = imgs["t" + m2m(game.state[e])]
                     }
                 else
-                    for (var o = 0; o < game.f; o++)
+                    for (var o = 0; o < game.f; ++o)
                         tiles[o].src = imgs["t" + m2m(game.state[o])]
             }
             function UpdateMinesLeft() {
@@ -6229,7 +6229,7 @@
             }
             function depress(t) {
                 ClearHint();
-                for (var e = 0; e < t.length; e++)
+                for (var e = 0; e < t.length; ++e)
                     -3 == game.state[t[e]] && (state.depressed.push(t[e]),
                     tiles[t[e]].src = imgs.t0,
                     face.newface(imgs.f1))
@@ -6441,17 +6441,17 @@
                 flipbuttons.tooltiptext = taptile)
             }
             function SetStatsFlags() {
-                for (var t = 0; t < 4; t++)
+                for (var t = 0; t < 4; ++t)
                     statsdlg[0][t] = !1;
-                for (t = 0; t < 6; t++)
+                for (t = 0; t < 6; ++t)
                     statsdlg[1][t] = !1;
                 game.cheated ? statsdlg[0][3] = !0 : statsdlg[0][options.gen - 1] = !0,
                 statsdlg[1][options.board] = !0
             }
             function StatsFlagsToTick() {
-                for (var t = 0; t < 4; t++)
+                for (var t = 0; t < 4; ++t)
                     $("#tssgt" + t).css("color", statsdlg[0][t] ? "black" : "#CCC");
-                for (t = 0; t < 6; t++)
+                for (t = 0; t < 6; ++t)
                     $("#tssbs" + t).css("color", statsdlg[1][t] ? "black" : "#CCC")
             }
             function FormatAsTime(t) {
@@ -6464,27 +6464,27 @@
                 return (0 < (t = Math.floor(t / 24)) ? t + ":" : "") + i + ":" + o + ":" + e
             }
             function CalculateStats() {
-                for (var t = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]], e = [null, null], o = "-", i = 0; i < 4; i++)
-                    for (var s = 0; s < 6; s++)
+                for (var t = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]], e = [null, null], o = "-", i = 0; i < 4; ++i)
+                    for (var s = 0; s < 6; ++s)
                         if (statsdlg[0][i] && statsdlg[1][s]) {
-                            for (var a = 0; a < 3; a++)
+                            for (var a = 0; a < 3; ++a)
                                 t[0][a] += stats[i][s][1][a];
-                            for (a = 0; a < 3; a++)
+                            for (a = 0; a < 3; ++a)
                                 t[1][a] += stats[i][s][2][a];
-                            for (a = 0; a < 3; a++)
+                            for (a = 0; a < 3; ++a)
                                 t[2][a] += stats[i][s][0][a];
                             null != stats[i][s][3][0] && (null == e[0] || e[0] > stats[i][s][3][0]) && (e[0] = stats[i][s][3][0],
                             e[1] = stats[i][s][3][1])
                         }
-                for (i = 0; i < 3; i++)
-                    for (s = 0; s < 3; s++)
+                for (i = 0; i < 3; ++i)
+                    for (s = 0; s < 3; ++s)
                         t[3][i] += t[s][i];
                 0 < t[3][0] && (o = Math.round(1e4 * t[0][0] / t[3][0]) / 100 + "%");
-                for (i = 0; i < 4; i++)
+                for (i = 0; i < 4; ++i)
                     $("#stat-0-" + i).text(t[i][0]);
-                for (i = 0; i < 4; i++)
+                for (i = 0; i < 4; ++i)
                     $("#stat-1-" + i).text(FormatAsTime(t[i][1]));
-                for (i = 0; i < 4; i++)
+                for (i = 0; i < 4; ++i)
                     $("#stat-2-" + i).text(t[i][2]);
                 $("#stat-3-0").text(o),
                 $("#stat-3-1").text(null == e[0] ? "-" : Math.floor(e[0] / 10) / 100),
@@ -6525,9 +6525,9 @@
                 toolbar = $("#toolbar").get(0),
                 tooltip = $("#tooltip").get(0),
                 cover = $("#cover").get(0);
-                for (var i = 0; i < 24; i++)
+                for (var i = 0; i < 24; ++i)
                     ebs.push($("#eb" + i).get(0));
-                for (i = 0; i < 6; i++)
+                for (i = 0; i < 6; ++i)
                     digits.push($("#dd" + i).get(0));
                 face = new Button($("#face").get(0),imgs.f0,imgs.f4,newgame,function() {
                     0 == game.outcome && SaveStats(),
@@ -6727,8 +6727,8 @@
                     CalculateStats()
                 }),
                 $("#brstats").click(function() {
-                    for (var t = 0; t < 4; t++)
-                        for (var e = 0; e < 6; e++)
+                    for (var t = 0; t < 4; ++t)
+                        for (var e = 0; e < 6; ++e)
                             statsdlg[0][t] && statsdlg[1][e] && (stats[t][e] = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [null, null]]);
                     CalculateStats()
                 }),

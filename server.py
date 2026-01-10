@@ -6,7 +6,7 @@ def main(port: int = 8000, address: str = "./"):
     os.chdir(address)
     HandlerClass = SimpleHTTPRequestHandler
     ServerClass = http.server.HTTPServer
-    Protocol = "HTTP/1.0"
+    Protocol = "HTTP/1.1"
     server_address = ("127.0.0.1", port)
     HandlerClass.protocol_version = Protocol
     httpd = ServerClass(server_address, HandlerClass)

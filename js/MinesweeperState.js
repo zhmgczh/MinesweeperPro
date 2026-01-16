@@ -474,7 +474,7 @@ class MinesweeperState {
     }
     return predictions;
   }
-  limit_layers_and_time_get_prediction(time_upper_limit) {
+  limit_time_get_prediction(time_upper_limit) {
     return this.get_predictions(Date.now() + time_upper_limit);
   }
 }

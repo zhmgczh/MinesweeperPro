@@ -53,3 +53,4 @@ class Pair {
     return "(" + this.#first + ", " + this.#second + ")";
   }
 }
+export { Pair };

@@ -187,7 +187,7 @@ class MinesweeperState {
             this.#temp_map,
             ni,
             nj,
-            force_finished
+            force_finished,
           )
         )
           return false;
@@ -204,7 +204,7 @@ class MinesweeperState {
         !this.#check_temp_map_position_valid(
           point.getFirst(),
           point.getSecond(),
-          force_finished
+          force_finished,
         )
       ) {
         return false;
@@ -228,7 +228,7 @@ class MinesweeperState {
     point_index,
     remaining_mines,
     number_of_blanks,
-    force_finished
+    force_finished,
   ) {
     if (this.#force_stopped) return;
     if (Date.now() > this.#search_stop_before) {
@@ -240,7 +240,7 @@ class MinesweeperState {
         this.#check_temp_map_positions_valid(
           all_points,
           remaining_mines,
-          force_finished
+          force_finished,
         )
       ) {
         for (const point of all_points) {
@@ -258,7 +258,7 @@ class MinesweeperState {
         all_points.length,
         0,
         number_of_blanks,
-        force_finished
+        force_finished,
       );
       for (let i = point_index; i < all_points.length; ++i)
         this.#temp_map[all_points[i].getFirst()][all_points[i].getSecond()] =
@@ -272,7 +272,7 @@ class MinesweeperState {
         all_points.length,
         0,
         number_of_blanks,
-        force_finished
+        force_finished,
       );
       for (let i = point_index; i < all_points.length; ++i)
         this.#temp_map[all_points[i].getFirst()][all_points[i].getSecond()] =
@@ -288,7 +288,7 @@ class MinesweeperState {
           point_index + 1,
           remaining_mines,
           number_of_blanks,
-          force_finished
+          force_finished,
         );
       }
       this.#temp_map[p.getFirst()][p.getSecond()] = MinesweeperState.MINE_FLAG;
@@ -300,7 +300,7 @@ class MinesweeperState {
           point_index + 1,
           remaining_mines - 1,
           number_of_blanks,
-          force_finished
+          force_finished,
         );
       }
       this.#temp_map[p.getFirst()][p.getSecond()] = MinesweeperState.BLANK;
@@ -314,7 +314,7 @@ class MinesweeperState {
       const neighbors = MinesweeperState.get_numbers_in_domain(
         this.#temp_map,
         point.getFirst(),
-        point.getSecond()
+        point.getSecond(),
       );
       for (const numPoint of neighbors) {
         for (const [di, dj] of MinesweeperState.unit_vectors) {
@@ -328,7 +328,7 @@ class MinesweeperState {
             this.#prediction_tag[ni][nj]
           ) {
             const otherPoint = Array.from(allPointsSet).find(
-              (p) => p.getFirst() === ni && p.getSecond() === nj
+              (p) => p.getFirst() === ni && p.getSecond() === nj,
             );
             if (otherPoint) {
               uf.union(point, otherPoint);
@@ -363,7 +363,7 @@ class MinesweeperState {
   }
   #has_found() {
     return this.#all_points.some(
-      (p) => this.#possibility_map.get(p.toString()).size === 1
+      (p) => this.#possibility_map.get(p.toString()).size === 1,
     );
   }
   #initialize_get_predictions(search_stop_before) {
@@ -372,10 +372,10 @@ class MinesweeperState {
     this.#all_points = [];
     this.#all_blanks = [];
     this.#prediction_tag = Array.from({ length: this.#nrows }, () =>
-      new Array(this.#ncols).fill(false)
+      new Array(this.#ncols).fill(false),
     );
     const visited = Array.from({ length: this.#nrows }, () =>
-      new Array(this.#ncols).fill(false)
+      new Array(this.#ncols).fill(false),
     );
     for (let i = 0; i < this.#nrows; ++i) {
       for (let j = 0; j < this.#ncols; ++j) {
@@ -414,19 +414,19 @@ class MinesweeperState {
     const predictions = [];
     if (this.#remaining_mines === 0) {
       this.#all_blanks.forEach((p) =>
-        predictions.push(new Pair(p, MinesweeperState.ZERO))
+        predictions.push(new Pair(p, MinesweeperState.ZERO)),
       );
     } else if (this.#remaining_mines === this.#all_blanks.length) {
       this.#all_blanks.forEach((p) =>
-        predictions.push(new Pair(p, MinesweeperState.MINE_FLAG))
+        predictions.push(new Pair(p, MinesweeperState.MINE_FLAG)),
       );
     } else {
       this.#temp_map = this.#map.map((row) =>
         row.map((cell) =>
           MinesweeperState.is_unfinished_operand(cell)
             ? MinesweeperState.BLANK
-            : cell
-        )
+            : cell,
+        ),
       );
       const all_blanks_included =
         this.#all_points.length === this.#all_blanks.length;
@@ -439,7 +439,7 @@ class MinesweeperState {
           0,
           this.#remaining_mines,
           this.#all_blanks.length,
-          1 === blocks.length && all_blanks_included
+          1 === blocks.length && all_blanks_included,
         );
         if (this.#force_stopped) return predictions;
       }
@@ -450,7 +450,7 @@ class MinesweeperState {
           0,
           this.#remaining_mines,
           this.#all_blanks.length,
-          all_blanks_included
+          all_blanks_included,
         );
         if (this.#force_stopped) return predictions;
       }
@@ -462,7 +462,7 @@ class MinesweeperState {
           0,
           this.#remaining_mines,
           this.#all_blanks.length,
-          true
+          true,
         );
         if (this.#force_stopped) return predictions;
       }
@@ -481,3 +481,4 @@ class MinesweeperState {
     return this.get_predictions(Date.now() + time_upper_limit);
   }
 }
+export { MinesweeperState };

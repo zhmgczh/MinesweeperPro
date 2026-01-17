@@ -95,3 +95,4 @@ class Graph {
     return bfs;
   }
 }
+export { Graph };

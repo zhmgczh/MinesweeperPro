@@ -99,3 +99,4 @@ class UnionFindSet {
     );
   }
 }
+export { UnionFindSet };

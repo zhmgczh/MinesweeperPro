@@ -1,3 +1,6 @@
+import { Pair } from "./Pair.js";
+import { UnionFindSet } from "./UnionFindSet.js";
+import { Graph } from "./Graph.js";
 class IllegalMapException extends Error {
   constructor(message) {
     super(message);

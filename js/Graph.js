@@ -72,8 +72,8 @@ class Graph {
     }
     const size = this.#nodes.length;
     const visited = new Uint8Array(size);
-    const bfs = [];
     const queue = new Int32Array(size);
+    const bfs = [];
     let head = 0,
       tail = 0;
     const root_index = this.#map.get(root);

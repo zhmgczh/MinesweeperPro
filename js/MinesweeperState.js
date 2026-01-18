@@ -306,6 +306,122 @@ class MinesweeperState {
       this.#temp_map[p.getFirst()][p.getSecond()] = MinesweeperState.BLANK;
     }
   }
+  #search_iterative(
+    all_points,
+    point_index,
+    remaining_mines,
+    number_of_blanks,
+    force_finished,
+  ) {
+    const stack = [];
+    stack.push({
+      kind: "call",
+      point_index,
+      remaining_mines,
+    });
+    const n = all_points.length;
+    while (stack.length > 0) {
+      const frame = stack.pop();
+      if (frame.kind === "rangeRestore") {
+        for (let i = frame.start; i < frame.end; ++i) {
+          const pt = all_points[i];
+          this.#temp_map[pt.getFirst()][pt.getSecond()] =
+            MinesweeperState.BLANK;
+        }
+        continue;
+      }
+      if (frame.kind === "nodeStage") {
+        const p = all_points[frame.point_index];
+        const r = p.getFirst();
+        const c = p.getSecond();
+        if (frame.stage === 1) {
+          this.#temp_map[r][c] = MinesweeperState.MINE_FLAG;
+          if (this.#check_temp_map_position_valid(r, c, false)) {
+            stack.push({
+              kind: "nodeStage",
+              stage: 2,
+              point_index: frame.point_index,
+              remaining_mines: frame.remaining_mines,
+            });
+            stack.push({
+              kind: "call",
+              point_index: frame.point_index + 1,
+              remaining_mines: frame.remaining_mines - 1,
+            });
+          } else {
+            stack.push({
+              kind: "nodeStage",
+              stage: 2,
+              point_index: frame.point_index,
+              remaining_mines: frame.remaining_mines,
+            });
+          }
+        } else if (frame.stage === 2) {
+          this.#temp_map[r][c] = MinesweeperState.BLANK;
+        }
+        continue;
+      }
+      if (this.#force_stopped) continue;
+      if (Date.now() > this.#search_stop_before) {
+        this.#force_stopped = true;
+        continue;
+      }
+      const idx = frame.point_index;
+      const mines = frame.remaining_mines;
+      if (idx === n) {
+        if (
+          this.#check_temp_map_positions_valid(
+            all_points,
+            mines,
+            force_finished,
+          )
+        ) {
+          for (const pt of all_points) {
+            this.#possibility_map
+              .get(pt.toString())
+              .add(this.#temp_map[pt.getFirst()][pt.getSecond()]);
+          }
+        }
+        continue;
+      }
+      if (0 === mines) {
+        for (let i = idx; i < n; ++i) {
+          const pt = all_points[i];
+          this.#temp_map[pt.getFirst()][pt.getSecond()] = MinesweeperState.ZERO;
+        }
+        stack.push({ kind: "rangeRestore", start: idx, end: n });
+        stack.push({ kind: "call", point_index: n, remaining_mines: 0 });
+        continue;
+      }
+      if (number_of_blanks - idx === mines) {
+        for (let i = idx; i < n; ++i) {
+          const pt = all_points[i];
+          this.#temp_map[pt.getFirst()][pt.getSecond()] =
+            MinesweeperState.MINE_FLAG;
+        }
+        stack.push({ kind: "rangeRestore", start: idx, end: n });
+        stack.push({ kind: "call", point_index: n, remaining_mines: 0 });
+        continue;
+      }
+      const p = all_points[idx];
+      const r = p.getFirst();
+      const c = p.getSecond();
+      this.#temp_map[r][c] = MinesweeperState.ZERO;
+      stack.push({
+        kind: "nodeStage",
+        stage: 1,
+        point_index: idx,
+        remaining_mines: mines,
+      });
+      if (this.#check_temp_map_position_valid(r, c, false)) {
+        stack.push({
+          kind: "call",
+          point_index: idx + 1,
+          remaining_mines: mines,
+        });
+      }
+    }
+  }
   #get_blocks() {
     const allPointsSet = new Set(this.#all_points);
     const uf = new UnionFindSet(allPointsSet);
@@ -434,7 +550,7 @@ class MinesweeperState {
       this.#initPossibilityMap(target_points);
       const blocks = this.#get_blocks();
       for (const block of blocks) {
-        this.#search(
+        this.#search_iterative(
           block,
           0,
           this.#remaining_mines,
@@ -445,7 +561,7 @@ class MinesweeperState {
       }
       if (blocks.length !== 1 && !this.#has_found()) {
         this.#initPossibilityMap(target_points);
-        this.#search(
+        this.#search_iterative(
           target_points,
           0,
           this.#remaining_mines,
@@ -457,7 +573,7 @@ class MinesweeperState {
       if (!all_blanks_included && !this.#has_found()) {
         target_points = this.#all_blanks;
         this.#initPossibilityMap(target_points);
-        this.#search(
+        this.#search_iterative(
           target_points,
           0,
           this.#remaining_mines,

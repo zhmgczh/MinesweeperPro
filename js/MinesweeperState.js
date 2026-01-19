@@ -440,7 +440,7 @@ class MinesweeperState {
     return prediction_points;
   }
   #get_blocks() {
-    const allPointsSet = new Set(this.#all_points);
+    const allPointsSet = new Set(this.#all_points.map((p) => p.toString()));
     const uf = new UnionFindSet(allPointsSet);
     const graph = new Graph(allPointsSet);
     for (const point of this.#all_points) {
@@ -455,9 +455,11 @@ class MinesweeperState {
           numPoint.getSecond(),
         );
         for (const prediction_point of prediction_points) {
-          uf.union(point, prediction_point);
-          graph.add_edge(point, prediction_point, 0);
-          graph.add_edge(prediction_point, point, 0);
+          const point_str = point.toString();
+          const prediction_point_str = prediction_point.toString();
+          uf.union(point_str, prediction_point_str);
+          graph.add_edge(point_str, prediction_point_str, 0);
+          graph.add_edge(prediction_point_str, point_str, 0);
         }
       }
     }
@@ -467,7 +469,7 @@ class MinesweeperState {
       const root = uf.find(point);
       const rootKey = root.toString();
       if (!visitedRoots.has(rootKey)) {
-        blocks.push(graph.get_bfs_order(root));
+        blocks.push(graph.get_bfs_order(rootKey));
         visitedRoots.add(rootKey);
       }
     }

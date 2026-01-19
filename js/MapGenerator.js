@@ -1,8 +1,5 @@
 import { MinesweeperState } from "./MinesweeperState.js";
 class MapGenerator {
-  static SINGLE_STEP_TIME_LIMIT = 500;
-  static ONE_GRID_TIME_LIMIT = 8000;
-  static NO_GUESS_TIME_LIMIT = 60000;
   static count_determined_blanks(rows, cols, first_click_row, first_click_col) {
     const min_i = Math.max(0, first_click_row - 1);
     const max_i = Math.min(rows - 1, first_click_row + 1);
@@ -170,7 +167,14 @@ class MapGenerator {
     }
     MapGenerator.iterative_reveal(temp_map, grid, i, j, MapGenerator.visited);
   }
-  static is_no_guess_solution(grid, mines, first_click_row, first_click_col) {
+  static is_no_guess_solution(
+    grid,
+    mines,
+    first_click_row,
+    first_click_col,
+    ONE_GRID_TIME_LIMIT,
+    SINGLE_STEP_TIME_LIMIT,
+  ) {
     MapGenerator.visited = Array.from({ length: grid.length }, () =>
       Array.from({ length: grid[0].length }, () => false),
     );
@@ -192,7 +196,7 @@ class MapGenerator {
         return true;
       }
       const predictions = game_state.limit_time_get_prediction(
-        MapGenerator.SINGLE_STEP_TIME_LIMIT,
+        SINGLE_STEP_TIME_LIMIT,
       );
       if (null === predictions || 0 === predictions.length) {
         break;
@@ -210,8 +214,11 @@ class MapGenerator {
           }
         }
       }
-    } while (Date.now() - start_time <= MapGenerator.ONE_GRID_TIME_LIMIT);
+    } while (Date.now() - start_time <= ONE_GRID_TIME_LIMIT);
     return false;
+  }
+  static clamp(x, lo, hi) {
+    return Math.min(hi, Math.max(lo, x));
   }
   static generate_no_guess_map(
     rows,
@@ -221,14 +228,21 @@ class MapGenerator {
     first_click_col,
   ) {
     let area = rows * cols;
-    MapGenerator.SINGLE_STEP_TIME_LIMIT = Math.min(
-      1000,
+    let SINGLE_STEP_TIME_LIMIT = MapGenerator.clamp(
       Math.round(200 + 0.5 * area),
+      250,
+      1200,
     );
-    MapGenerator.ONE_GRID_TIME_LIMIT = Math.round(
-      (MapGenerator.SINGLE_STEP_TIME_LIMIT * mines) / Math.sqrt(area),
+    let ONE_GRID_TIME_LIMIT = MapGenerator.clamp(
+      Math.round(SINGLE_STEP_TIME_LIMIT * (15 + 0.8 * Math.sqrt(area))),
+      4000,
+      30000,
     );
-    MapGenerator.NO_GUESS_TIME_LIMIT = Math.min(60000, 20000 + 50 * area);
+    let NO_GUESS_TIME_LIMIT = MapGenerator.clamp(
+      Math.round(3 * ONE_GRID_TIME_LIMIT + 30 * area),
+      15000,
+      60000,
+    );
     let grid = null;
     let start_time = Date.now();
     let successful = false;
@@ -246,12 +260,14 @@ class MapGenerator {
           mines,
           first_click_row,
           first_click_col,
+          ONE_GRID_TIME_LIMIT,
+          SINGLE_STEP_TIME_LIMIT,
         )
       ) {
         successful = true;
         break;
       }
-    } while (Date.now() - start_time <= MapGenerator.NO_GUESS_TIME_LIMIT);
+    } while (Date.now() - start_time <= NO_GUESS_TIME_LIMIT);
     return successful ? grid : null;
   }
 }

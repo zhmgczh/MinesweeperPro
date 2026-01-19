@@ -422,6 +422,23 @@ class MinesweeperState {
       }
     }
   }
+  #get_prediction_points_in_domain(i, j) {
+    const prediction_points = [];
+    for (const [di, dj] of MinesweeperState.unit_vectors) {
+      const ni = i + di,
+        nj = j + dj;
+      if (
+        ni >= 0 &&
+        ni < this.#temp_map.length &&
+        nj >= 0 &&
+        nj < this.#temp_map[0].length &&
+        this.#prediction_tag[ni][nj]
+      ) {
+        prediction_points.push(new Pair(ni, nj));
+      }
+    }
+    return prediction_points;
+  }
   #get_blocks() {
     const allPointsSet = new Set(this.#all_points);
     const uf = new UnionFindSet(allPointsSet);
@@ -433,25 +450,14 @@ class MinesweeperState {
         point.getSecond(),
       );
       for (const numPoint of neighbors) {
-        for (const [di, dj] of MinesweeperState.unit_vectors) {
-          const ni = numPoint.getFirst() + di,
-            nj = numPoint.getSecond() + dj;
-          if (
-            ni >= 0 &&
-            ni < this.#nrows &&
-            nj >= 0 &&
-            nj < this.#ncols &&
-            this.#prediction_tag[ni][nj]
-          ) {
-            const otherPoint = Array.from(allPointsSet).find(
-              (p) => p.getFirst() === ni && p.getSecond() === nj,
-            );
-            if (otherPoint) {
-              uf.union(point, otherPoint);
-              graph.add_edge(point, otherPoint, 0);
-              graph.add_edge(otherPoint, point, 0);
-            }
-          }
+        const prediction_points = this.#get_prediction_points_in_domain(
+          numPoint.getFirst(),
+          numPoint.getSecond(),
+        );
+        for (const prediction_point of prediction_points) {
+          uf.union(point, prediction_point);
+          graph.add_edge(point, prediction_point, 0);
+          graph.add_edge(prediction_point, point, 0);
         }
       }
     }

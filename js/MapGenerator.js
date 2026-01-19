@@ -220,6 +220,12 @@ class MapGenerator {
     first_click_row,
     first_click_col,
   ) {
+    let area = rows * cols;
+    MapGenerator.SINGLE_STEP_TIME_LIMIT = Math.round(200 + 0.5 * area);
+    MapGenerator.ONE_GRID_TIME_LIMIT = Math.round(
+      (MapGenerator.SINGLE_STEP_TIME_LIMIT * mines) / Math.sqrt(area),
+    );
+    MapGenerator.NO_GUESS_TIME_LIMIT = Math.min(60000, 20000 + 50 * area);
     let grid = null;
     let start_time = Date.now();
     let successful = false;

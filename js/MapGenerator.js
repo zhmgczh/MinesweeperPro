@@ -1,8 +1,8 @@
 import { MinesweeperState } from "./MinesweeperState.js";
 class MapGenerator {
-  static SINGLE_STEP_TIME_LIMIT = 200;
-  static ONE_GRID_TIME_LIMIT = 1000;
-  static NO_GUESS_TIME_LIMIT = 10000;
+  static SINGLE_STEP_TIME_LIMIT = 500;
+  static ONE_GRID_TIME_LIMIT = 8000;
+  static NO_GUESS_TIME_LIMIT = 60000;
   static count_determined_blanks(rows, cols, first_click_row, first_click_col) {
     const min_i = Math.max(0, first_click_row - 1);
     const max_i = Math.min(rows - 1, first_click_row + 1);

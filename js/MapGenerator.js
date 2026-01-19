@@ -243,6 +243,7 @@ class MapGenerator {
       15000,
       60000,
     );
+    console.log(SINGLE_STEP_TIME_LIMIT, ONE_GRID_TIME_LIMIT, NO_GUESS_TIME_LIMIT);
     let grid = null;
     let start_time = Date.now();
     let successful = false;

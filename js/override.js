@@ -18,13 +18,22 @@ function requesthint() {
       loader.start(),
       (() => {
         let finished = false;
-        const timer = setTimeout(() => {
-          if (finished) return;
-          finished = true;
-          loader.stop();
-          nstatus.image.src = imgs.s2;
-          nstatus.tooltiptext = connectionfailed;
-        }, MapGenerator.NO_GUESS_TIME_LIMIT);
+        const timer = setTimeout(
+          () => {
+            if (finished) return;
+            finished = true;
+            loader.stop();
+            nstatus.image.src = imgs.s2;
+            nstatus.tooltiptext = connectionfailed;
+          },
+          MapGenerator.get_NO_GUESS_TIME_LIMIT(
+            MapGenerator.get_ONE_GRID_TIME_LIMIT(
+              MapGenerator.get_SINGLE_STEP_TIME_LIMIT(game.x * game.y),
+              game.x * game.y,
+            ),
+            game.x * game.y,
+          ),
+        );
         set_loading_icon();
         setTimeout(() => {
           if (finished) return;
@@ -47,7 +56,13 @@ function requesthint() {
             }
             const game_state = new MinesweeperState(0, game.m, temp_map);
             const predictions = game_state.limit_time_get_prediction(
-              MapGenerator.NO_GUESS_TIME_LIMIT,
+              MapGenerator.get_NO_GUESS_TIME_LIMIT(
+                MapGenerator.get_ONE_GRID_TIME_LIMIT(
+                  MapGenerator.get_SINGLE_STEP_TIME_LIMIT(game.x * game.y),
+                  game.x * game.y,
+                ),
+                game.x * game.y,
+              ),
             );
             if (null === predictions || 0 === predictions.length) {
               clearTimeout(timer);
@@ -111,13 +126,22 @@ function requestuncover(n) {
             loader.start(),
             (() => {
               let finished = false;
-              const timer = setTimeout(() => {
-                if (finished) return;
-                finished = true;
-                loader.stop();
-                nstatus.image.src = imgs.s2;
-                nstatus.tooltiptext = connectionfailed;
-              }, MapGenerator.NO_GUESS_TIME_LIMIT);
+              const timer = setTimeout(
+                () => {
+                  if (finished) return;
+                  finished = true;
+                  loader.stop();
+                  nstatus.image.src = imgs.s2;
+                  nstatus.tooltiptext = connectionfailed;
+                },
+                MapGenerator.get_NO_GUESS_TIME_LIMIT(
+                  MapGenerator.get_ONE_GRID_TIME_LIMIT(
+                    MapGenerator.get_SINGLE_STEP_TIME_LIMIT(game.x * game.y),
+                    game.x * game.y,
+                  ),
+                  game.x * game.y,
+                ),
+              );
               const cols = game.x,
                 rows = game.y;
               const first = n;

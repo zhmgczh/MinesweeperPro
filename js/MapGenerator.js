@@ -220,6 +220,23 @@ class MapGenerator {
   static clamp(x, lo, hi) {
     return Math.min(hi, Math.max(lo, x));
   }
+  static get_SINGLE_STEP_TIME_LIMIT(area) {
+    return MapGenerator.clamp(Math.round(200 + 0.5 * area), 250, 1200);
+  }
+  static get_ONE_GRID_TIME_LIMIT(SINGLE_STEP_TIME_LIMIT, area) {
+    return MapGenerator.clamp(
+      Math.round(SINGLE_STEP_TIME_LIMIT * (15 + 0.8 * Math.sqrt(area))),
+      4000,
+      30000,
+    );
+  }
+  static get_NO_GUESS_TIME_LIMIT(ONE_GRID_TIME_LIMIT, area) {
+    return MapGenerator.clamp(
+      Math.round(3 * ONE_GRID_TIME_LIMIT + 30 * area),
+      15000,
+      60000,
+    );
+  }
   static generate_no_guess_map(
     rows,
     cols,
@@ -228,22 +245,15 @@ class MapGenerator {
     first_click_col,
   ) {
     let area = rows * cols;
-    let SINGLE_STEP_TIME_LIMIT = MapGenerator.clamp(
-      Math.round(200 + 0.5 * area),
-      250,
-      1200,
+    let SINGLE_STEP_TIME_LIMIT = MapGenerator.get_SINGLE_STEP_TIME_LIMIT(area);
+    let ONE_GRID_TIME_LIMIT = MapGenerator.get_ONE_GRID_TIME_LIMIT(
+      SINGLE_STEP_TIME_LIMIT,
+      area,
     );
-    let ONE_GRID_TIME_LIMIT = MapGenerator.clamp(
-      Math.round(SINGLE_STEP_TIME_LIMIT * (15 + 0.8 * Math.sqrt(area))),
-      4000,
-      30000,
+    let NO_GUESS_TIME_LIMIT = MapGenerator.get_NO_GUESS_TIME_LIMIT(
+      ONE_GRID_TIME_LIMIT,
+      area,
     );
-    let NO_GUESS_TIME_LIMIT = MapGenerator.clamp(
-      Math.round(3 * ONE_GRID_TIME_LIMIT + 30 * area),
-      15000,
-      60000,
-    );
-    console.log(SINGLE_STEP_TIME_LIMIT, ONE_GRID_TIME_LIMIT, NO_GUESS_TIME_LIMIT);
     let grid = null;
     let start_time = Date.now();
     let successful = false;

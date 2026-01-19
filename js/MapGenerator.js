@@ -87,7 +87,6 @@ class MapGenerator {
     }
     return grid;
   }
-  static visited = null;
   static recursive_reveal(temp_map, grid, i, j, visited) {
     if (-1 !== grid[i][j]) {
       temp_map[i][j] = String(grid[i][j]);
@@ -154,7 +153,7 @@ class MapGenerator {
       }
     }
   }
-  static do_recursive_reveal(temp_map, grid, i, j) {
+  static do_recursive_reveal(temp_map, grid, i, j, visited) {
     if (
       i < 0 ||
       i >= grid.length ||
@@ -165,17 +164,17 @@ class MapGenerator {
     ) {
       return;
     }
-    MapGenerator.iterative_reveal(temp_map, grid, i, j, MapGenerator.visited);
+    MapGenerator.iterative_reveal(temp_map, grid, i, j, visited);
   }
   static is_no_guess_solution(
     grid,
     mines,
     first_click_row,
     first_click_col,
-    ONE_GRID_TIME_LIMIT,
     SINGLE_STEP_TIME_LIMIT,
+    ONE_GRID_TIME_LIMIT,
   ) {
-    MapGenerator.visited = Array.from({ length: grid.length }, () =>
+    const visited = Array.from({ length: grid.length }, () =>
       Array.from({ length: grid[0].length }, () => false),
     );
     const temp_map = Array.from({ length: grid.length }, () =>
@@ -186,6 +185,7 @@ class MapGenerator {
       grid,
       first_click_row,
       first_click_col,
+      visited,
     );
     let remaining_mines = mines;
     let game_state = null;
@@ -210,7 +210,7 @@ class MapGenerator {
             temp_map[i][j] = MinesweeperState.MINE_FLAG;
             --remaining_mines;
           } else {
-            MapGenerator.do_recursive_reveal(temp_map, grid, i, j);
+            MapGenerator.do_recursive_reveal(temp_map, grid, i, j, visited);
           }
         }
       }
@@ -260,8 +260,8 @@ class MapGenerator {
           mines,
           first_click_row,
           first_click_col,
-          ONE_GRID_TIME_LIMIT,
           SINGLE_STEP_TIME_LIMIT,
+          ONE_GRID_TIME_LIMIT,
         )
       ) {
         successful = true;

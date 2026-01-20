@@ -84,8 +84,11 @@ class MinesweeperState {
   #search_stop_before;
   #force_stopped = false;
   #prediction_tag;
-  constructor(time_passed, remaining_mines, map) {
-    if (!MinesweeperState.check_map_valid(map, remaining_mines, false)) {
+  constructor(time_passed, remaining_mines, map, check = true) {
+    if (
+      check &&
+      !MinesweeperState.check_map_valid(map, remaining_mines, false)
+    ) {
       throw new IllegalMapException("The map is invalid.");
     }
     this.#time_passed = time_passed;

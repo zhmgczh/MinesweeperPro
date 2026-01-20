@@ -188,7 +188,12 @@ class MapGenerator {
       visited,
     );
     let remaining_mines = mines;
-    const game_state = new MinesweeperState(0, remaining_mines, temp_map);
+    const game_state = new MinesweeperState(
+      0,
+      remaining_mines,
+      temp_map,
+      false,
+    );
     let start_time = Date.now();
     do {
       if ("W" === game_state.get_status()) {

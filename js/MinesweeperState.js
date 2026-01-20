@@ -461,7 +461,6 @@ class MinesweeperState {
           if (point_str !== prediction_point_str) {
             uf.union(point_str, prediction_point_str);
             graph.add_edge(point_str, prediction_point_str, 0);
-            graph.add_edge(prediction_point_str, point_str, 0);
           }
         }
       }

@@ -188,10 +188,9 @@ class MapGenerator {
       visited,
     );
     let remaining_mines = mines;
-    let game_state = null;
+    const game_state = new MinesweeperState(0, remaining_mines, temp_map);
     let start_time = Date.now();
     do {
-      game_state = new MinesweeperState(0, remaining_mines, temp_map);
       if ("W" === game_state.get_status()) {
         return true;
       }
@@ -214,6 +213,7 @@ class MapGenerator {
           }
         }
       }
+      game_state.reset(temp_map, remaining_mines);
     } while (Date.now() - start_time <= ONE_GRID_TIME_LIMIT);
     return false;
   }

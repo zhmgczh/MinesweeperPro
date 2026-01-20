@@ -94,6 +94,21 @@ class MinesweeperState {
     this.#nrows = map.length;
     this.#ncols = map[0].length;
   }
+  reset(map, remaining_mines, time_passed = -1, check = false) {
+    if (
+      check &&
+      !MinesweeperState.check_map_valid(map, remaining_mines, false)
+    ) {
+      throw new IllegalMapException("The map is invalid.");
+    }
+    if (time_passed >= 0) {
+      this.#time_passed = time_passed;
+    }
+    this.#remaining_mines = remaining_mines;
+    this.#map = map;
+    this.#nrows = map.length;
+    this.#ncols = map[0].length;
+  }
   static is_valid_operand(c) {
     return MinesweeperState.operands.includes(c);
   }

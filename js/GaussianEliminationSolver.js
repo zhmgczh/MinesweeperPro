@@ -591,4 +591,11 @@ class GaussianEliminationSolver {
     return predictions;
   }
 }
-export { Rat, GaussianRREF, GaussianEliminationSolver };
+export {
+  Rat,
+  GaussianRREF,
+  BigIntMath,
+  FractionFreeEchelon,
+  BinaryBoundsPropagator,
+  GaussianEliminationSolver,
+};

@@ -566,17 +566,17 @@ class MinesweeperState {
       );
     } else {
       const blocks = this.#get_blocks();
-      const gaussian_predictions =
-        GaussianEliminationSolver.get_predictions_from_blocks(
-          blocks,
-          this.#map,
-          this.#prediction_tag,
-        );
-      if (null === gaussian_predictions) {
-        return null;
-      } else if (gaussian_predictions.length > 0) {
-        return gaussian_predictions;
-      }
+      // const gaussian_predictions =
+      //   GaussianEliminationSolver.get_predictions_from_blocks(
+      //     blocks,
+      //     this.#map,
+      //     this.#prediction_tag,
+      //   );
+      // if (null === gaussian_predictions) {
+      //   return null;
+      // } else if (gaussian_predictions.length > 0) {
+      //   return gaussian_predictions;
+      // }
       const all_blanks_included =
         this.#all_points.length === this.#all_blanks.length;
       let target_points = this.#all_points;

@@ -1,6 +1,7 @@
 import { Pair } from "./Pair.js";
 import { UnionFindSet } from "./UnionFindSet.js";
 import { Graph } from "./Graph.js";
+import { GaussianEliminationSolver } from "./GaussianEliminationSolver.js";
 class IllegalMapException extends Error {
   constructor(message) {
     super(message);
@@ -147,7 +148,7 @@ class MinesweeperState {
     if (force_finished && remaining_mines !== 0) return false;
     let blanks = 0;
     for (let i = 0; i < map.length; ++i) {
-      for (let j = 0; j < map[i].length; ++j) {
+      for (let j = 0; j < map[0].length; ++j) {
         if (MinesweeperState.is_unfinished_operand(map[i][j])) {
           if (force_finished) return false;
           ++blanks;
@@ -447,9 +448,9 @@ class MinesweeperState {
         nj = j + dj;
       if (
         ni >= 0 &&
-        ni < this.#temp_map.length &&
+        ni < this.#nrows &&
         nj >= 0 &&
-        nj < this.#temp_map[0].length &&
+        nj < this.#ncols &&
         this.#prediction_tag[ni][nj]
       ) {
         prediction_points.push(new Pair(ni, nj));
@@ -464,7 +465,7 @@ class MinesweeperState {
     const graph = new Graph(allPointsSet);
     for (const point of this.#all_points) {
       const neighbors = MinesweeperState.get_numbers_in_domain(
-        this.#temp_map,
+        this.#map,
         point.getFirst(),
         point.getSecond(),
       );
@@ -564,6 +565,21 @@ class MinesweeperState {
         predictions.push(new Pair(p, MinesweeperState.MINE_FLAG)),
       );
     } else {
+      const blocks = this.#get_blocks();
+      const gaussian_predictions =
+        GaussianEliminationSolver.get_predictions_from_blocks(
+          blocks,
+          this.#map,
+          this.#prediction_tag,
+        );
+      if (null === gaussian_predictions) {
+        return null;
+      } else if (gaussian_predictions.length > 0) {
+        return gaussian_predictions;
+      }
+      const all_blanks_included =
+        this.#all_points.length === this.#all_blanks.length;
+      let target_points = this.#all_points;
       this.#temp_map = this.#map.map((row) =>
         row.map((cell) =>
           MinesweeperState.is_unfinished_operand(cell)
@@ -571,11 +587,7 @@ class MinesweeperState {
             : cell,
         ),
       );
-      const all_blanks_included =
-        this.#all_points.length === this.#all_blanks.length;
-      var target_points = this.#all_points;
       this.#initPossibilityMap(target_points);
-      const blocks = this.#get_blocks();
       for (const block of blocks) {
         this.#search_iterative(
           block,

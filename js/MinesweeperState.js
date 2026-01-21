@@ -579,7 +579,7 @@ class MinesweeperState {
       // }
       const all_blanks_included =
         this.#all_points.length === this.#all_blanks.length;
-      let target_points = this.#all_points;
+      let target_points = [];
       this.#temp_map = this.#map.map((row) =>
         row.map((cell) =>
           MinesweeperState.is_unfinished_operand(cell)
@@ -587,7 +587,7 @@ class MinesweeperState {
             : cell,
         ),
       );
-      this.#initPossibilityMap(target_points);
+      this.#initPossibilityMap(this.#all_points);
       for (const block of blocks) {
         this.#search_iterative(
           block,
@@ -596,36 +596,46 @@ class MinesweeperState {
           this.#all_blanks.length,
           1 === blocks.length && all_blanks_included,
         );
-        if (this.#force_stopped) return predictions;
+        if (this.#force_stopped) {
+          break;
+        }
+        target_points.push(...block);
       }
-      if (blocks.length !== 1 && !this.#has_found()) {
-        this.#initPossibilityMap(target_points);
-        this.#search_iterative(
-          target_points,
-          0,
-          this.#remaining_mines,
-          this.#all_blanks.length,
-          all_blanks_included,
-        );
-        if (this.#force_stopped) return predictions;
-      }
-      if (!all_blanks_included && !this.#has_found()) {
-        target_points = this.#all_blanks;
-        this.#initPossibilityMap(target_points);
-        this.#search_iterative(
-          target_points,
-          0,
-          this.#remaining_mines,
-          this.#all_blanks.length,
-          true,
-        );
-        if (this.#force_stopped) return predictions;
+      if (!this.#force_stopped && !this.#has_found()) {
+        if (blocks.length !== 1) {
+          target_points = this.#all_points;
+          this.#initPossibilityMap(target_points);
+          this.#search_iterative(
+            target_points,
+            0,
+            this.#remaining_mines,
+            this.#all_blanks.length,
+            all_blanks_included,
+          );
+          if (this.#force_stopped) {
+            return predictions;
+          }
+        }
+        if (!all_blanks_included && !this.#has_found()) {
+          target_points = this.#all_blanks;
+          this.#initPossibilityMap(target_points);
+          this.#search_iterative(
+            target_points,
+            0,
+            this.#remaining_mines,
+            this.#all_blanks.length,
+            true,
+          );
+          if (this.#force_stopped) {
+            return predictions;
+          }
+        }
       }
       for (const p of target_points) {
         const possibilities = this.#possibility_map.get(p.toString());
         if (0 === possibilities.size) {
           return null;
-        } else if (possibilities.size === 1) {
+        } else if (1 === possibilities.size) {
           predictions.push(new Pair(p, Array.from(possibilities)[0]));
         }
       }

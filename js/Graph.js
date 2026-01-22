@@ -86,8 +86,8 @@ class Graph {
       while (cursor !== null) {
         const to = cursor.to;
         if (!visited[to]) {
-          visited[to] = 1;
           queue[tail++] = to;
+          visited[to] = 1;
         }
         cursor = cursor.next;
       }

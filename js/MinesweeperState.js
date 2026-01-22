@@ -1,6 +1,8 @@
 import { Pair } from "./Pair.js";
 import { UnionFindSet } from "./UnionFindSet.js";
 import { Graph } from "./Graph.js";
+import { RawUnionFindSet } from "./RawUnionFindSet.js";
+import { RawGraph } from "./RawGraph.js";
 import { GaussianEliminationSolver } from "./GaussianEliminationSolver.js";
 class IllegalMapException extends Error {
   constructor(message) {
@@ -501,7 +503,75 @@ class MinesweeperState {
         visitedRoots.add(rootKey);
       }
     }
-    this.#all_points = [];
+    this.#all_points.length = 0;
+    for (const block of blocks) {
+      for (const p of block) {
+        this.#all_points.push(p);
+      }
+    }
+    return blocks;
+  }
+  #get_blocks_raw() {
+    const index_map = Array.from(
+      { length: this.#nrows },
+      () => new Int32Array(this.#ncols),
+    );
+    for (let i = 0; i < this.#all_points.length; ++i) {
+      const point = this.#all_points[i];
+      index_map[point.getFirst()][point.getSecond()] = i;
+    }
+    const set = new RawUnionFindSet(this.#all_points.length);
+    const graph = new RawGraph(this.#all_points.length);
+    for (const point of this.#all_points) {
+      const numbers_in_domain = MinesweeperState.get_numbers_in_domain(
+        this.#map,
+        point.getFirst(),
+        point.getSecond(),
+      );
+      for (const number_point of numbers_in_domain) {
+        const prediction_points = this.#get_prediction_points_in_domain(
+          number_point.getFirst(),
+          number_point.getSecond(),
+        );
+        for (const prediction_point of prediction_points) {
+          if (
+            !(
+              point.getFirst() === prediction_point.getFirst() &&
+              point.getSecond() === prediction_point.getSecond()
+            )
+          ) {
+            set.union(
+              index_map[point.getFirst()][point.getSecond()],
+              index_map[prediction_point.getFirst()][
+                prediction_point.getSecond()
+              ],
+            );
+            graph.add_edge(
+              index_map[point.getFirst()][point.getSecond()],
+              index_map[prediction_point.getFirst()][
+                prediction_point.getSecond()
+              ],
+              0,
+            );
+          }
+        }
+      }
+    }
+    const blocks = [];
+    const visited = new Set();
+    for (let i = 0; i < this.#all_points.length; ++i) {
+      const root = set.find(i);
+      if (!visited.has(root)) {
+        const bfs_order = graph.get_bfs_order(root);
+        const real_bfs_order = [];
+        for (const k of bfs_order) {
+          real_bfs_order.push(this.#all_points[k]);
+        }
+        blocks.push(real_bfs_order);
+        visited.add(root);
+      }
+    }
+    this.#all_points.length = 0;
     for (const block of blocks) {
       for (const p of block) {
         this.#all_points.push(p);
@@ -578,7 +648,7 @@ class MinesweeperState {
         predictions.push(new Pair(p, MinesweeperState.MINE_FLAG)),
       );
     } else {
-      const blocks = this.#get_blocks();
+      const blocks = this.#get_blocks_raw();
       // const gaussian_predictions =
       //   GaussianEliminationSolver.get_predictions_from_blocks(
       //     blocks,

@@ -101,6 +101,9 @@ class MinesweeperState {
     this.#ncols = map[0].length;
   }
   reset(map, remaining_mines, time_passed = -1, check = false) {
+    if (this.#nrows !== map.length || this.#ncols !== map[0].length) {
+      throw new IllegalMapException("The map size is different.");
+    }
     if (
       check &&
       !MinesweeperState.check_map_valid(map, remaining_mines, false)
@@ -112,8 +115,6 @@ class MinesweeperState {
     }
     this.#remaining_mines = remaining_mines;
     this.#map = map;
-    this.#nrows = map.length;
-    this.#ncols = map[0].length;
   }
   static is_valid_operand(c) {
     return MinesweeperState.operands.includes(c);

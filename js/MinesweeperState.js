@@ -511,7 +511,7 @@ class MinesweeperState {
     }
     return blocks;
   }
-  #index_map;
+  #index_map = null;
   #get_blocks_raw() {
     if (null === this.#index_map) {
       this.#index_map = Array.from(

@@ -262,10 +262,11 @@ class MinesweeperState {
           force_finished,
         )
       ) {
-        for (const point of all_points) {
-          this.#possibility_map
-            .get(point.toString())
-            .add(this.#temp_map[point.getFirst()][point.getSecond()]);
+        for (let i = 0; i < all_points.length; ++i) {
+          const pt = all_points[i];
+          this.#possibility_map[i].add(
+            this.#temp_map[pt.getFirst()][pt.getSecond()],
+          );
         }
       }
     } else if (0 === remaining_mines) {
@@ -395,10 +396,11 @@ class MinesweeperState {
             force_finished,
           )
         ) {
-          for (const pt of all_points) {
-            this.#possibility_map
-              .get(pt.toString())
-              .add(this.#temp_map[pt.getFirst()][pt.getSecond()]);
+          for (let i = 0; i < all_points.length; ++i) {
+            const pt = all_points[i];
+            this.#possibility_map[i].add(
+              this.#temp_map[pt.getFirst()][pt.getSecond()],
+            );
           }
         }
         continue;
@@ -501,14 +503,19 @@ class MinesweeperState {
     }
     return blocks;
   }
-  #initPossibilityMap(points) {
-    this.#possibility_map = new Map();
-    points.forEach((p) => this.#possibility_map.set(p.toString(), new Set()));
+  #has_found(target_points_max_length) {
+    for (let i = 0; i < target_points_max_length; ++i) {
+      if (1 == this.#possibility_map[i].size) {
+        return true;
+      }
+    }
+    return false;
   }
-  #has_found() {
-    return this.#all_points.some(
-      (p) => this.#possibility_map.get(p.toString()).size === 1,
-    );
+  #initPossibilityMap(target_points) {
+    this.#possibility_map = [];
+    for (let i = 0; i < target_points.length; ++i) {
+      this.#possibility_map.push(new Set());
+    }
   }
   #initialize_get_predictions(search_stop_before) {
     this.#search_stop_before = search_stop_before;
@@ -579,7 +586,8 @@ class MinesweeperState {
       // }
       const all_blanks_included =
         this.#all_points.length === this.#all_blanks.length;
-      let target_points = [];
+      let target_points = this.#all_points;
+      let target_points_max_length = 0;
       this.#temp_map = this.#map.map((row) =>
         row.map((cell) =>
           MinesweeperState.is_unfinished_operand(cell)
@@ -587,7 +595,7 @@ class MinesweeperState {
             : cell,
         ),
       );
-      this.#initPossibilityMap(this.#all_points);
+      this.#initPossibilityMap(target_points);
       for (const block of blocks) {
         this.#search_iterative(
           block,
@@ -599,9 +607,9 @@ class MinesweeperState {
         if (this.#force_stopped) {
           break;
         }
-        target_points.push(...block);
+        target_points_max_length += block.length;
       }
-      if (!this.#force_stopped && !this.#has_found()) {
+      if (!this.#force_stopped && !this.#has_found(target_points_max_length)) {
         if (blocks.length !== 1) {
           target_points = this.#all_points;
           this.#initPossibilityMap(target_points);
@@ -615,8 +623,12 @@ class MinesweeperState {
           if (this.#force_stopped) {
             return predictions;
           }
+          target_points_max_length = this.#all_points.length;
         }
-        if (!all_blanks_included && !this.#has_found()) {
+        if (
+          !all_blanks_included &&
+          !this.#has_found(target_points_max_length)
+        ) {
           target_points = this.#all_blanks;
           this.#initPossibilityMap(target_points);
           this.#search_iterative(
@@ -629,10 +641,12 @@ class MinesweeperState {
           if (this.#force_stopped) {
             return predictions;
           }
+          target_points_max_length = this.#all_blanks.length;
         }
       }
-      for (const p of target_points) {
-        const possibilities = this.#possibility_map.get(p.toString());
+      for (let i = 0; i < target_points_max_length; ++i) {
+        const p = target_points[i];
+        const possibilities = this.#possibility_map[i];
         if (0 === possibilities.size) {
           return null;
         } else if (1 === possibilities.size) {

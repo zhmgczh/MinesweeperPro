@@ -244,6 +244,18 @@ class MinesweeperState {
     }
     return 0 <= remaining_mines && remaining_mines <= current_blanks;
   }
+  #quick_set(start_index, all_points, value) {
+    for (let i = start_index; i < all_points.length; ++i) {
+      this.#temp_map[all_points[i].getFirst()][all_points[i].getSecond()] =
+        value;
+    }
+  }
+  #quick_reset(all_points, start_index) {
+    for (let i = start_index; i < all_points.length; ++i) {
+      this.#temp_map[all_points[i].getFirst()][all_points[i].getSecond()] =
+        MinesweeperState.BLANK;
+    }
+  }
   #call_counter = 0;
   #search(
     all_points,
@@ -278,9 +290,7 @@ class MinesweeperState {
         }
       }
     } else if (0 === remaining_mines) {
-      for (let i = point_index; i < all_points.length; ++i)
-        this.#temp_map[all_points[i].getFirst()][all_points[i].getSecond()] =
-          MinesweeperState.ZERO;
+      this.#quick_set(point_index, all_points, MinesweeperState.ZERO);
       this.#search(
         all_points,
         base_offset,
@@ -289,13 +299,9 @@ class MinesweeperState {
         number_of_blanks,
         force_finished,
       );
-      for (let i = point_index; i < all_points.length; ++i)
-        this.#temp_map[all_points[i].getFirst()][all_points[i].getSecond()] =
-          MinesweeperState.BLANK;
+      this.#quick_reset(all_points, point_index);
     } else if (number_of_blanks - point_index === remaining_mines) {
-      for (let i = point_index; i < all_points.length; ++i)
-        this.#temp_map[all_points[i].getFirst()][all_points[i].getSecond()] =
-          MinesweeperState.MINE_FLAG;
+      this.#quick_set(point_index, all_points, MinesweeperState.MINE_FLAG);
       this.#search(
         all_points,
         base_offset,
@@ -304,9 +310,7 @@ class MinesweeperState {
         number_of_blanks,
         force_finished,
       );
-      for (let i = point_index; i < all_points.length; ++i)
-        this.#temp_map[all_points[i].getFirst()][all_points[i].getSecond()] =
-          MinesweeperState.BLANK;
+      this.#quick_reset(all_points, point_index);
     } else {
       const p = all_points[point_index];
       this.#temp_map[p.getFirst()][p.getSecond()] = MinesweeperState.ZERO;
@@ -338,264 +342,131 @@ class MinesweeperState {
       this.#temp_map[p.getFirst()][p.getSecond()] = MinesweeperState.BLANK;
     }
   }
-  // #search_iterative(
-  //   all_points,
-  //   base_offset,
-  //   point_index,
-  //   remaining_mines,
-  //   number_of_blanks,
-  //   force_finished,
-  // ) {
-  //   const stack = [];
-  //   stack.push({
-  //     kind: "call",
-  //     point_index,
-  //     remaining_mines,
-  //   });
-  //   const n = all_points.length;
-  //   while (stack.length > 0) {
-  //     const frame = stack.pop();
-  //     if (frame.kind === "rangeRestore") {
-  //       for (let i = frame.start; i < frame.end; ++i) {
-  //         const pt = all_points[i];
-  //         this.#temp_map[pt.getFirst()][pt.getSecond()] =
-  //           MinesweeperState.BLANK;
-  //       }
-  //       continue;
-  //     }
-  //     if (frame.kind === "nodeStage") {
-  //       const p = all_points[frame.point_index];
-  //       const r = p.getFirst();
-  //       const c = p.getSecond();
-  //       if (frame.stage === 1) {
-  //         this.#temp_map[r][c] = MinesweeperState.MINE_FLAG;
-  //         if (this.#check_temp_map_position_valid(r, c, false)) {
-  //           stack.push({
-  //             kind: "nodeStage",
-  //             stage: 2,
-  //             point_index: frame.point_index,
-  //             remaining_mines: frame.remaining_mines,
-  //           });
-  //           stack.push({
-  //             kind: "call",
-  //             point_index: frame.point_index + 1,
-  //             remaining_mines: frame.remaining_mines - 1,
-  //           });
-  //         } else {
-  //           stack.push({
-  //             kind: "nodeStage",
-  //             stage: 2,
-  //             point_index: frame.point_index,
-  //             remaining_mines: frame.remaining_mines,
-  //           });
-  //         }
-  //       } else if (frame.stage === 2) {
-  //         this.#temp_map[r][c] = MinesweeperState.BLANK;
-  //       }
-  //       continue;
-  //     }
-  //     if (this.#force_stopped) continue;
-  //     this.#call_counter = this.#call_counter + 1;
-  //     if (0 === (this.#call_counter & 1023)) {
-  //       if (Date.now() > this.#search_stop_before) {
-  //         this.#force_stopped = true;
-  //         continue;
-  //       }
-  //       this.#call_counter = 0;
-  //     }
-  //     const idx = frame.point_index;
-  //     const mines = frame.remaining_mines;
-  //     if (idx === n) {
-  //       if (
-  //         this.#check_temp_map_positions_valid(
-  //           all_points,
-  //           mines,
-  //           force_finished,
-  //         )
-  //       ) {
-  //         for (let i = 0; i < all_points.length; ++i) {
-  //           const pt = all_points[i];
-  //           this.#possibility_map[base_offset + i].add(
-  //             this.#temp_map[pt.getFirst()][pt.getSecond()],
-  //           );
-  //         }
-  //       }
-  //       continue;
-  //     }
-  //     if (0 === mines) {
-  //       for (let i = idx; i < n; ++i) {
-  //         const pt = all_points[i];
-  //         this.#temp_map[pt.getFirst()][pt.getSecond()] = MinesweeperState.ZERO;
-  //       }
-  //       stack.push({ kind: "rangeRestore", start: idx, end: n });
-  //       stack.push({ kind: "call", point_index: n, remaining_mines: 0 });
-  //       continue;
-  //     }
-  //     if (number_of_blanks - idx === mines) {
-  //       for (let i = idx; i < n; ++i) {
-  //         const pt = all_points[i];
-  //         this.#temp_map[pt.getFirst()][pt.getSecond()] =
-  //           MinesweeperState.MINE_FLAG;
-  //       }
-  //       stack.push({ kind: "rangeRestore", start: idx, end: n });
-  //       stack.push({ kind: "call", point_index: n, remaining_mines: 0 });
-  //       continue;
-  //     }
-  //     const p = all_points[idx];
-  //     const r = p.getFirst();
-  //     const c = p.getSecond();
-  //     this.#temp_map[r][c] = MinesweeperState.ZERO;
-  //     stack.push({
-  //       kind: "nodeStage",
-  //       stage: 1,
-  //       point_index: idx,
-  //       remaining_mines: mines,
-  //     });
-  //     if (this.#check_temp_map_position_valid(r, c, false)) {
-  //       stack.push({
-  //         kind: "call",
-  //         point_index: idx + 1,
-  //         remaining_mines: mines,
-  //       });
-  //     }
-  //   }
-  // }
   #search_iterative(
     all_points,
     base_offset,
-    point_index,
     remaining_mines,
     number_of_blanks,
     force_finished,
   ) {
-    const n = all_points.length;
-    const MAX_STACK_SIZE = (n + 1) * 10;
-    const stack = new Int32Array(MAX_STACK_SIZE * 4);
-    let ptr = 0;
-    const K_CALL = 0;
-    const K_RESTORE = 1;
-    const K_STAGE = 2;
-    stack[ptr++] = K_CALL;
-    stack[ptr++] = point_index;
-    stack[ptr++] = remaining_mines;
-    stack[ptr++] = 0;
-    while (ptr > 0) {
-      ptr -= 4;
-      const fKind = stack[ptr];
-      const fVal1 = stack[ptr + 1];
-      const fVal2 = stack[ptr + 2];
-      const fVal3 = stack[ptr + 3];
-      if (fKind === K_RESTORE) {
-        const start = fVal1;
-        const end = fVal2;
-        for (let i = start; i < end; ++i) {
-          const pt = all_points[i];
-          this.#temp_map[pt.getFirst()][pt.getSecond()] =
-            MinesweeperState.BLANK;
-        }
-        continue;
-      }
-      if (fKind === K_STAGE) {
-        const stage = fVal1;
-        const pIdx = fVal2;
-        const mines = fVal3;
-        const p = all_points[pIdx];
-        const r = p.getFirst();
-        const c = p.getSecond();
-        if (stage === 1) {
-          this.#temp_map[r][c] = MinesweeperState.MINE_FLAG;
-          if (this.#check_temp_map_position_valid(r, c, false)) {
-            stack[ptr++] = K_STAGE;
-            stack[ptr++] = 2;
-            stack[ptr++] = pIdx;
-            stack[ptr++] = mines;
-            stack[ptr++] = K_CALL;
-            stack[ptr++] = pIdx + 1;
-            stack[ptr++] = mines - 1;
-            stack[ptr++] = 0;
-          } else {
-            stack[ptr++] = K_STAGE;
-            stack[ptr++] = 2;
-            stack[ptr++] = pIdx;
-            stack[ptr++] = mines;
-          }
-        } else if (stage === 2) {
-          this.#temp_map[r][c] = MinesweeperState.BLANK;
-        }
-        continue;
-      }
-      if (this.#force_stopped) continue;
-      this.#call_counter = this.#call_counter + 1;
-      if (0 === (this.#call_counter & 1023)) {
-        if (Date.now() > this.#search_stop_before) {
-          this.#force_stopped = true;
+    const maxDepth = all_points.length + 5;
+    const stack_point_index = new Int32Array(maxDepth);
+    const stack_remaining_mines = new Int32Array(maxDepth);
+    const stack_stage = new Int32Array(maxDepth);
+    const stack_x = new Int32Array(maxDepth);
+    const stack_y = new Int32Array(maxDepth);
+    let stack_pointer = 0;
+    stack_point_index[stack_pointer] = 0;
+    stack_remaining_mines[stack_pointer] = remaining_mines;
+    stack_stage[stack_pointer] = 0;
+    while (stack_pointer >= 0) {
+      let cur_point_index = stack_point_index[stack_pointer];
+      let cur_remaining_mines = stack_remaining_mines[stack_pointer];
+      if (stack_stage[stack_pointer] === 0) {
+        if (this.#force_stopped) {
+          --stack_pointer;
           continue;
         }
-        this.#call_counter = 0;
-      }
-      const idx = fVal1;
-      const mines = fVal2;
-      if (idx === n) {
-        if (
-          this.#check_temp_map_positions_valid(
+        this.#call_counter = this.#call_counter + 1;
+        if (0 === (this.#call_counter & 1023)) {
+          if (Date.now() > this.#search_stop_before) {
+            this.#force_stopped = true;
+            --stack_pointer;
+            continue;
+          }
+          this.#call_counter = 0;
+        }
+        if (cur_point_index === all_points.length) {
+          if (
+            this.#check_temp_map_positions_valid(
+              all_points,
+              cur_remaining_mines,
+              force_finished,
+            )
+          ) {
+            for (let i = 0; i < all_points.length; ++i) {
+              const p = all_points[i];
+              const val = this.#temp_map[p.getFirst()][p.getSecond()];
+              this.#possibility_map[base_offset + i].add(val);
+            }
+          }
+          --stack_pointer;
+          continue;
+        }
+        if (0 === cur_remaining_mines) {
+          this.#quick_set(cur_point_index, all_points, MinesweeperState.ZERO);
+          stack_stage[stack_pointer] = 1;
+          ++stack_pointer;
+          stack_point_index[stack_pointer] = all_points.length;
+          stack_remaining_mines[stack_pointer] = 0;
+          stack_stage[stack_pointer] = 0;
+          continue;
+        }
+        if (number_of_blanks - cur_point_index === cur_remaining_mines) {
+          this.#quick_set(
+            cur_point_index,
             all_points,
-            mines,
-            force_finished,
+            MinesweeperState.MINE_FLAG,
+          );
+          stack_stage[stack_pointer] = 2;
+          ++stack_pointer;
+          stack_point_index[stack_pointer] = all_points.length;
+          stack_remaining_mines[stack_pointer] = 0;
+          stack_stage[stack_pointer] = 0;
+          continue;
+        }
+        const p = all_points[cur_point_index];
+        stack_x[stack_pointer] = p.getFirst();
+        stack_y[stack_pointer] = p.getSecond();
+        this.#temp_map[stack_x[stack_pointer]][stack_y[stack_pointer]] =
+          MinesweeperState.ZERO;
+        stack_stage[stack_pointer] = 3;
+        if (
+          this.#check_temp_map_position_valid(
+            stack_x[stack_pointer],
+            stack_y[stack_pointer],
+            false,
           )
         ) {
-          for (let i = 0; i < all_points.length; ++i) {
-            const pt = all_points[i];
-            this.#possibility_map[base_offset + i].add(
-              this.#temp_map[pt.getFirst()][pt.getSecond()],
-            );
-          }
+          ++stack_pointer;
+          stack_point_index[stack_pointer] = cur_point_index + 1;
+          stack_remaining_mines[stack_pointer] = cur_remaining_mines;
+          stack_stage[stack_pointer] = 0;
         }
         continue;
       }
-      if (0 === mines) {
-        for (let i = idx; i < n; ++i) {
-          const pt = all_points[i];
-          this.#temp_map[pt.getFirst()][pt.getSecond()] = MinesweeperState.ZERO;
-        }
-        stack[ptr++] = K_RESTORE;
-        stack[ptr++] = idx;
-        stack[ptr++] = n;
-        stack[ptr++] = 0;
-        stack[ptr++] = K_CALL;
-        stack[ptr++] = n;
-        stack[ptr++] = 0;
-        stack[ptr++] = 0;
+      if (stack_stage[stack_pointer] === 1) {
+        this.#quick_reset(all_points, cur_point_index);
+        --stack_pointer;
         continue;
       }
-      if (number_of_blanks - idx === mines) {
-        for (let i = idx; i < n; ++i) {
-          const pt = all_points[i];
-          this.#temp_map[pt.getFirst()][pt.getSecond()] =
-            MinesweeperState.MINE_FLAG;
-        }
-        stack[ptr++] = K_RESTORE;
-        stack[ptr++] = idx;
-        stack[ptr++] = n;
-        stack[ptr++] = 0;
-        stack[ptr++] = K_CALL;
-        stack[ptr++] = n;
-        stack[ptr++] = 0;
-        stack[ptr++] = 0;
+      if (stack_stage[stack_pointer] === 2) {
+        this.#quick_reset(all_points, cur_point_index);
+        --stack_pointer;
         continue;
       }
-      const p = all_points[idx];
-      const r = p.getFirst();
-      const c = p.getSecond();
-      this.#temp_map[r][c] = MinesweeperState.ZERO;
-      stack[ptr++] = K_STAGE;
-      stack[ptr++] = 1;
-      stack[ptr++] = idx;
-      stack[ptr++] = mines;
-      if (this.#check_temp_map_position_valid(r, c, false)) {
-        stack[ptr++] = K_CALL;
-        stack[ptr++] = idx + 1;
-        stack[ptr++] = mines;
-        stack[ptr++] = 0;
+      if (stack_stage[stack_pointer] === 3) {
+        this.#temp_map[stack_x[stack_pointer]][stack_y[stack_pointer]] =
+          MinesweeperState.MINE_FLAG;
+        stack_stage[stack_pointer] = 4;
+        if (
+          this.#check_temp_map_position_valid(
+            stack_x[stack_pointer],
+            stack_y[stack_pointer],
+            false,
+          )
+        ) {
+          ++stack_pointer;
+          stack_point_index[stack_pointer] = cur_point_index + 1;
+          stack_remaining_mines[stack_pointer] = cur_remaining_mines - 1;
+          stack_stage[stack_pointer] = 0;
+        }
+        continue;
+      }
+      if (stack_stage[stack_pointer] === 4) {
+        this.#temp_map[stack_x[stack_pointer]][stack_y[stack_pointer]] =
+          MinesweeperState.BLANK;
+        --stack_pointer;
       }
     }
   }
@@ -821,7 +692,6 @@ class MinesweeperState {
         this.#search_iterative(
           block,
           target_points_max_length,
-          0,
           this.#remaining_mines,
           this.#all_blanks.length,
           1 === blocks.length && all_blanks_included,
@@ -837,7 +707,6 @@ class MinesweeperState {
           this.#initPossibilityMap(target_points);
           this.#search_iterative(
             target_points,
-            0,
             0,
             this.#remaining_mines,
             this.#all_blanks.length,
@@ -856,7 +725,6 @@ class MinesweeperState {
           this.#initPossibilityMap(target_points);
           this.#search_iterative(
             target_points,
-            0,
             0,
             this.#remaining_mines,
             this.#all_blanks.length,

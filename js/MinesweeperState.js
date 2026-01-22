@@ -511,22 +511,27 @@ class MinesweeperState {
     }
     return blocks;
   }
+  #index_map;
   #get_blocks_raw() {
-    const index_map = Array.from(
-      { length: this.#nrows },
-      () => new Int32Array(this.#ncols),
-    );
+    if (null === this.#index_map) {
+      this.#index_map = Array.from(
+        { length: this.#nrows },
+        () => new Int32Array(this.#ncols),
+      );
+    }
     for (let i = 0; i < this.#all_points.length; ++i) {
       const point = this.#all_points[i];
-      index_map[point.getFirst()][point.getSecond()] = i;
+      this.#index_map[point.getFirst()][point.getSecond()] = i;
     }
     const set = new RawUnionFindSet(this.#all_points.length);
     const graph = new RawGraph(this.#all_points.length);
     for (const point of this.#all_points) {
+      const point_first = point.getFirst();
+      const point_second = point.getSecond();
       const numbers_in_domain = MinesweeperState.get_numbers_in_domain(
         this.#map,
-        point.getFirst(),
-        point.getSecond(),
+        point_first,
+        point_second,
       );
       for (const number_point of numbers_in_domain) {
         const prediction_points = this.#get_prediction_points_in_domain(
@@ -534,25 +539,19 @@ class MinesweeperState {
           number_point.getSecond(),
         );
         for (const prediction_point of prediction_points) {
+          const prediction_point_first = prediction_point.getFirst();
+          const prediction_point_second = prediction_point.getSecond();
           if (
             !(
-              point.getFirst() === prediction_point.getFirst() &&
-              point.getSecond() === prediction_point.getSecond()
+              point_first === prediction_point_first &&
+              point_second === prediction_point_second
             )
           ) {
-            set.union(
-              index_map[point.getFirst()][point.getSecond()],
-              index_map[prediction_point.getFirst()][
-                prediction_point.getSecond()
-              ],
-            );
-            graph.add_edge(
-              index_map[point.getFirst()][point.getSecond()],
-              index_map[prediction_point.getFirst()][
-                prediction_point.getSecond()
-              ],
-              0,
-            );
+            const from_index = this.#index_map[point_first][point_second];
+            const to_index =
+              this.#index_map[prediction_point_first][prediction_point_second];
+            set.union(from_index, to_index);
+            graph.add_edge(from_index, to_index, 0);
           }
         }
       }
@@ -573,9 +572,7 @@ class MinesweeperState {
     }
     this.#all_points.length = 0;
     for (const block of blocks) {
-      for (const p of block) {
-        this.#all_points.push(p);
-      }
+      this.#all_points.push(...block);
     }
     return blocks;
   }

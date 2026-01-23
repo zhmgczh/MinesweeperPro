@@ -4,6 +4,8 @@
 
 A high-performance, fully functional clone of the popular web-based Minesweeper game. This project aims to replicate the experience of [minesweeper-pro.com](https://minesweeper-pro.com/) using only static web technologies. The website is deployed at [https://zhmgczh.github.io/MinesweeperPro/](https://zhmgczh.github.io/MinesweeperPro/). It can be used with [MinesweeperDeterminator](https://github.com/zhmgczh/MinesweeperDeterminator).
 
+![Minesweeper Pro](demo.png)
+
 ## 🚀 Overview
 
 This is a pure client-side implementation of the classic Minesweeper. It requires no backend, no database, and no build tools. It is designed to be lightweight, responsive, and easy to deploy on any static hosting service (GitHub Pages, Vercel, Netlify).

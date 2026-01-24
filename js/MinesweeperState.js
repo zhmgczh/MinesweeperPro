@@ -730,7 +730,7 @@ class MinesweeperState {
           1 === blocks.length && all_blanks_included,
         );
         if (this.#force_stopped) {
-          break;
+          return predictions;
         }
         if (
           this.#summarize_predictions_failed(

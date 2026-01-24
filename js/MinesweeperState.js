@@ -83,11 +83,14 @@ class MinesweeperState {
   #point_pool;
   #temp_map;
   #possibility_map;
+  #final_remaining_mines_possibilities = null;
   #all_points;
   #all_blanks;
   #search_stop_before;
   #force_stopped = false;
   #prediction_tag;
+  #index_map = null;
+  #call_counter = 0;
   constructor(time_passed, remaining_mines, map, check = true) {
     if (
       check &&
@@ -128,7 +131,7 @@ class MinesweeperState {
     }
   }
   #initialize_point_pool_position(i, j) {
-    if (null == this.#point_pool[i][j]) {
+    if (null === this.#point_pool[i][j]) {
       this.#point_pool[i][j] = new Pair(i, j);
     }
   }
@@ -274,7 +277,6 @@ class MinesweeperState {
         MinesweeperState.BLANK;
     }
   }
-  #call_counter = 0;
   #search(
     all_points,
     base_offset,
@@ -285,7 +287,7 @@ class MinesweeperState {
   ) {
     if (this.#force_stopped) return;
     if (this.#search_stop_before > 0) {
-      this.#call_counter = this.#call_counter + 1;
+      ++this.#call_counter;
       if (0 === (this.#call_counter & 1023)) {
         if (Date.now() > this.#search_stop_before) {
           this.#force_stopped = true;
@@ -308,6 +310,7 @@ class MinesweeperState {
             this.#temp_map[pt.getFirst()][pt.getSecond()],
           );
         }
+        this.#final_remaining_mines_possibilities.add(remaining_mines);
       }
     } else if (0 === remaining_mines) {
       this.#quick_set(point_index, all_points, MinesweeperState.ZERO);
@@ -388,7 +391,7 @@ class MinesweeperState {
           continue;
         }
         if (this.#search_stop_before > 0) {
-          this.#call_counter = this.#call_counter + 1;
+          ++this.#call_counter;
           if (0 === (this.#call_counter & 1023)) {
             if (Date.now() > this.#search_stop_before) {
               this.#force_stopped = true;
@@ -411,6 +414,7 @@ class MinesweeperState {
               const val = this.#temp_map[p.getFirst()][p.getSecond()];
               this.#possibility_map[base_offset + i].add(val);
             }
+            this.#final_remaining_mines_possibilities.add(cur_remaining_mines);
           }
           --stack_pointer;
           continue;
@@ -552,7 +556,6 @@ class MinesweeperState {
     }
     return blocks;
   }
-  #index_map = null;
   #get_blocks_raw() {
     if (null === this.#index_map) {
       this.#index_map = Array.from(
@@ -621,6 +624,10 @@ class MinesweeperState {
     for (let i = 0; i < target_points.length; ++i) {
       this.#possibility_map.push(new Set());
     }
+    if (null === this.#final_remaining_mines_possibilities) {
+      this.#final_remaining_mines_possibilities = new Set();
+    }
+    this.#final_remaining_mines_possibilities.clear();
   }
   #initialize_temp_map() {
     this.#temp_map = this.#map.map((row) =>
@@ -740,7 +747,7 @@ class MinesweeperState {
       if (
         !this.#force_stopped &&
         blocks.length !== 1 &&
-        predictions.length === 0
+        0 === predictions.length
       ) {
         target_points = this.#all_points;
         this.#initPossibilityMap(target_points);
@@ -763,6 +770,30 @@ class MinesweeperState {
           )
         ) {
           return null;
+        }
+      }
+      if (
+        0 === predictions.length &&
+        1 === this.#final_remaining_mines_possibilities.size
+      ) {
+        const final_remaining_mines = Array.from(
+          this.#final_remaining_mines_possibilities,
+        )[0];
+        if (0 === final_remaining_mines) {
+          for (const point of this.#all_blanks) {
+            if (!this.#prediction_tag[point.getFirst()][point.getSecond()]) {
+              predictions.push(new Pair(point, MinesweeperState.ZERO));
+            }
+          }
+        } else if (
+          this.#all_blanks.length - this.#all_points.length ===
+          final_remaining_mines
+        ) {
+          for (const point of this.#all_blanks) {
+            if (!this.#prediction_tag[point.getFirst()][point.getSecond()]) {
+              predictions.push(new Pair(point, MinesweeperState.MINE_FLAG));
+            }
+          }
         }
       }
     }

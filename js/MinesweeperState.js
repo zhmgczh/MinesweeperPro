@@ -103,9 +103,8 @@ class MinesweeperState {
     this.#map = map;
     this.#nrows = map.length;
     this.#ncols = map[0].length;
-    this.#point_pool = Array.from(
-      { length: this.#nrows },
-      () => new Array(this.#ncols),
+    this.#point_pool = Array.from({ length: this.#nrows }, () =>
+      Array.from({ length: this.#ncols }, () => null),
     );
   }
   reset(time_passed, remaining_mines, map, check) {
@@ -124,9 +123,8 @@ class MinesweeperState {
       this.#point_pool.length !== this.#nrows ||
       this.#point_pool[0].length !== this.#ncols
     ) {
-      this.#point_pool = Array.from(
-        { length: this.#nrows },
-        () => new Array(this.#ncols),
+      this.#point_pool = Array.from({ length: this.#nrows }, () =>
+        Array.from({ length: this.#ncols }, () => null),
       );
     }
   }

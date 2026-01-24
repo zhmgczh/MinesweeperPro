@@ -773,6 +773,7 @@ class MinesweeperState {
         }
       }
       if (
+        !this.#force_stopped &&
         0 === predictions.length &&
         1 === this.#final_remaining_mines_possibilities.size
       ) {

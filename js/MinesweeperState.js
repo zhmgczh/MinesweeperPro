@@ -80,6 +80,7 @@ class MinesweeperState {
   #nrows;
   #ncols;
   #map;
+  #point_pool;
   #temp_map;
   #possibility_map;
   #all_points;
@@ -99,22 +100,37 @@ class MinesweeperState {
     this.#map = map;
     this.#nrows = map.length;
     this.#ncols = map[0].length;
+    this.#point_pool = Array.from(
+      { length: this.#nrows },
+      () => new Array(this.#ncols),
+    );
   }
-  reset(map, remaining_mines, time_passed = -1, check = false) {
-    if (this.#nrows !== map.length || this.#ncols !== map[0].length) {
-      throw new IllegalMapException("The map size is different.");
-    }
+  reset(time_passed, remaining_mines, map, check) {
     if (
       check &&
       !MinesweeperState.check_map_valid(map, remaining_mines, false)
     ) {
       throw new IllegalMapException("The map is invalid.");
     }
-    if (time_passed >= 0) {
-      this.#time_passed = time_passed;
-    }
+    this.#time_passed = time_passed;
     this.#remaining_mines = remaining_mines;
     this.#map = map;
+    this.#nrows = map.length;
+    this.#ncols = map[0].length;
+    if (
+      this.#point_pool.length !== this.#nrows ||
+      this.#point_pool[0].length !== this.#ncols
+    ) {
+      this.#point_pool = Array.from(
+        { length: this.#nrows },
+        () => new Array(this.#ncols),
+      );
+    }
+  }
+  #initialize_point_pool_position(i, j) {
+    if (null == this.#point_pool[i][j]) {
+      this.#point_pool[i][j] = new Pair(i, j);
+    }
   }
   static is_valid_operand(c) {
     return MinesweeperState.operands.includes(c);
@@ -176,19 +192,20 @@ class MinesweeperState {
     }
     return started ? (unfinished ? "P" : "W") : "S";
   }
-  static get_numbers_in_domain(map, i, j) {
+  get_numbers_in_domain(i, j) {
     const numbers = [];
     for (const [di, dj] of MinesweeperState.unit_vectors) {
       const ni = i + di,
         nj = j + dj;
       if (
         ni >= 0 &&
-        ni < map.length &&
+        ni < this.#map.length &&
         nj >= 0 &&
-        nj < map[0].length &&
-        MinesweeperState.is_number(map[ni][nj])
+        nj < this.#map[0].length &&
+        MinesweeperState.is_number(this.#map[ni][nj])
       ) {
-        numbers.push(new Pair(ni, nj));
+        this.#initialize_point_pool_position(ni, nj);
+        numbers.push(this.#point_pool[ni][nj]);
       }
     }
     return numbers;
@@ -267,13 +284,15 @@ class MinesweeperState {
     force_finished,
   ) {
     if (this.#force_stopped) return;
-    this.#call_counter = this.#call_counter + 1;
-    if (0 === (this.#call_counter & 1023)) {
-      if (Date.now() > this.#search_stop_before) {
-        this.#force_stopped = true;
-        return;
+    if (this.#search_stop_before > 0) {
+      this.#call_counter = this.#call_counter + 1;
+      if (0 === (this.#call_counter & 1023)) {
+        if (Date.now() > this.#search_stop_before) {
+          this.#force_stopped = true;
+          return;
+        }
+        this.#call_counter = 0;
       }
-      this.#call_counter = 0;
     }
     if (point_index === all_points.length) {
       if (
@@ -368,14 +387,16 @@ class MinesweeperState {
           --stack_pointer;
           continue;
         }
-        this.#call_counter = this.#call_counter + 1;
-        if (0 === (this.#call_counter & 1023)) {
-          if (Date.now() > this.#search_stop_before) {
-            this.#force_stopped = true;
-            --stack_pointer;
-            continue;
+        if (this.#search_stop_before > 0) {
+          this.#call_counter = this.#call_counter + 1;
+          if (0 === (this.#call_counter & 1023)) {
+            if (Date.now() > this.#search_stop_before) {
+              this.#force_stopped = true;
+              --stack_pointer;
+              continue;
+            }
+            this.#call_counter = 0;
           }
-          this.#call_counter = 0;
         }
         if (cur_point_index === all_points.length) {
           if (
@@ -483,7 +504,8 @@ class MinesweeperState {
         nj < this.#ncols &&
         this.#prediction_tag[ni][nj]
       ) {
-        prediction_points.push(new Pair(ni, nj));
+        this.#initialize_point_pool_position(ni, nj);
+        prediction_points.push(this.#point_pool[ni][nj]);
       }
     }
     return prediction_points;
@@ -494,8 +516,7 @@ class MinesweeperState {
     const uf = new UnionFindSet(allPointsSet);
     const graph = new Graph(allPointsSet);
     for (const point of this.#all_points) {
-      const neighbors = MinesweeperState.get_numbers_in_domain(
-        this.#map,
+      const neighbors = this.get_numbers_in_domain(
         point.getFirst(),
         point.getSecond(),
       );
@@ -548,8 +569,7 @@ class MinesweeperState {
     for (const point of this.#all_points) {
       const point_first = point.getFirst();
       const point_second = point.getSecond();
-      const numbers_in_domain = MinesweeperState.get_numbers_in_domain(
-        this.#map,
+      const numbers_in_domain = this.get_numbers_in_domain(
         point_first,
         point_second,
       );
@@ -596,19 +616,20 @@ class MinesweeperState {
     }
     return blocks;
   }
-  #has_found(target_points_max_length) {
-    for (let i = 0; i < target_points_max_length; ++i) {
-      if (1 == this.#possibility_map[i].size) {
-        return true;
-      }
-    }
-    return false;
-  }
   #initPossibilityMap(target_points) {
     this.#possibility_map = [];
     for (let i = 0; i < target_points.length; ++i) {
       this.#possibility_map.push(new Set());
     }
+  }
+  #initialize_temp_map() {
+    this.#temp_map = this.#map.map((row) =>
+      row.map((cell) =>
+        MinesweeperState.is_unfinished_operand(cell)
+          ? MinesweeperState.BLANK
+          : cell,
+      ),
+    );
   }
   #initialize_get_predictions(search_stop_before) {
     this.#search_stop_before = search_stop_before;
@@ -624,26 +645,24 @@ class MinesweeperState {
     for (let i = 0; i < this.#nrows; ++i) {
       for (let j = 0; j < this.#ncols; ++j) {
         if (MinesweeperState.is_unfinished_operand(this.#map[i][j])) {
-          this.#all_blanks.push(new Pair(i, j));
+          this.#initialize_point_pool_position(i, j);
+          this.#all_blanks.push(this.#point_pool[i][j]);
         } else {
           visited[i][j] = true;
         }
         if (MinesweeperState.is_number(this.#map[i][j])) {
-          for (
-            let ni = Math.max(0, i - 1);
-            ni <= Math.min(this.#nrows - 1, i + 1);
-            ++ni
-          ) {
-            for (
-              let nj = Math.max(0, j - 1);
-              nj <= Math.min(this.#ncols - 1, j + 1);
-              ++nj
-            ) {
+          const min_i = Math.max(0, i - 1);
+          const max_i = Math.min(this.#nrows - 1, i + 1);
+          const min_j = Math.max(0, j - 1);
+          const max_j = Math.min(this.#ncols - 1, j + 1);
+          for (let ni = min_i; ni <= max_i; ++ni) {
+            for (let nj = min_j; nj <= max_j; ++nj) {
               if (
                 !visited[ni][nj] &&
                 MinesweeperState.is_unfinished_operand(this.#map[ni][nj])
               ) {
-                this.#all_points.push(new Pair(ni, nj));
+                this.#initialize_point_pool_position(ni, nj);
+                this.#all_points.push(this.#point_pool[ni][nj]);
                 this.#prediction_tag[ni][nj] = true;
               }
               visited[ni][nj] = true;
@@ -652,6 +671,18 @@ class MinesweeperState {
         }
       }
     }
+  }
+  #summarize_predictions_failed(target_points, start, end, predictions) {
+    for (let i = start; i < end; ++i) {
+      const p = target_points[i];
+      const possibilities = this.#possibility_map[i];
+      if (0 === possibilities.size) {
+        return true;
+      } else if (1 === possibilities.size) {
+        predictions.push(new Pair(p, Array.from(possibilities)[0]));
+      }
+    }
+    return false;
   }
   get_predictions(search_stop_before) {
     this.#initialize_get_predictions(search_stop_before);
@@ -681,13 +712,7 @@ class MinesweeperState {
         this.#all_points.length === this.#all_blanks.length;
       let target_points = this.#all_points;
       let target_points_max_length = 0;
-      this.#temp_map = this.#map.map((row) =>
-        row.map((cell) =>
-          MinesweeperState.is_unfinished_operand(cell)
-            ? MinesweeperState.BLANK
-            : cell,
-        ),
-      );
+      this.#initialize_temp_map();
       this.#initPossibilityMap(target_points);
       for (const block of blocks) {
         this.#search_iterative(
@@ -700,56 +725,53 @@ class MinesweeperState {
         if (this.#force_stopped) {
           break;
         }
+        if (
+          this.#summarize_predictions_failed(
+            target_points,
+            target_points_max_length,
+            target_points_max_length + block.length,
+            predictions,
+          )
+        ) {
+          return null;
+        }
         target_points_max_length += block.length;
       }
-      if (!this.#force_stopped && !this.#has_found(target_points_max_length)) {
-        if (blocks.length !== 1) {
-          target_points = this.#all_points;
-          this.#initPossibilityMap(target_points);
-          this.#search_iterative(
-            target_points,
-            0,
-            this.#remaining_mines,
-            this.#all_blanks.length,
-            all_blanks_included,
-          );
-          if (this.#force_stopped) {
-            return predictions;
-          }
-          target_points_max_length = target_points.length;
+      if (
+        !this.#force_stopped &&
+        blocks.length !== 1 &&
+        predictions.length === 0
+      ) {
+        target_points = this.#all_points;
+        this.#initPossibilityMap(target_points);
+        this.#search_iterative(
+          target_points,
+          0,
+          this.#remaining_mines,
+          this.#all_blanks.length,
+          all_blanks_included,
+        );
+        if (this.#force_stopped) {
+          return predictions;
         }
         if (
-          !all_blanks_included &&
-          !this.#has_found(target_points_max_length)
-        ) {
-          target_points = this.#all_blanks;
-          this.#initPossibilityMap(target_points);
-          this.#search_iterative(
+          this.#summarize_predictions_failed(
             target_points,
             0,
-            this.#remaining_mines,
-            this.#all_blanks.length,
-            true,
-          );
-          if (this.#force_stopped) {
-            return predictions;
-          }
-          target_points_max_length = target_points.length;
-        }
-      }
-      for (let i = 0; i < target_points_max_length; ++i) {
-        const p = target_points[i];
-        const possibilities = this.#possibility_map[i];
-        if (0 === possibilities.size) {
+            target_points_max_length,
+            predictions,
+          )
+        ) {
           return null;
-        } else if (1 === possibilities.size) {
-          predictions.push(new Pair(p, Array.from(possibilities)[0]));
         }
       }
     }
     return predictions;
   }
   limit_time_get_prediction(time_upper_limit) {
+    if (time_upper_limit < 0) {
+      return this.get_predictions(-1);
+    }
     return this.get_predictions(Date.now() + time_upper_limit);
   }
 }

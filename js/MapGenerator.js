@@ -167,6 +167,7 @@ class MapGenerator {
     MapGenerator.iterative_reveal(temp_map, grid, i, j, visited);
   }
   static is_no_guess_solution(
+    game_state,
     grid,
     mines,
     first_click_row,
@@ -180,6 +181,7 @@ class MapGenerator {
     const temp_map = Array.from({ length: grid.length }, () =>
       Array.from({ length: grid[0].length }, () => MinesweeperState.BLANK),
     );
+    game_state.reset(0, mines, temp_map, false);
     MapGenerator.do_recursive_reveal(
       temp_map,
       grid,
@@ -188,20 +190,15 @@ class MapGenerator {
       visited,
     );
     let remaining_mines = mines;
-    const game_state = new MinesweeperState(
-      0,
-      remaining_mines,
-      temp_map,
-      false,
-    );
     let start_time = Date.now();
     do {
       if ("W" === game_state.get_status()) {
         return true;
       }
-      const predictions = game_state.limit_time_get_prediction(
-        SINGLE_STEP_TIME_LIMIT,
-      );
+      // const predictions = game_state.limit_time_get_prediction(
+      //   SINGLE_STEP_TIME_LIMIT,
+      // );
+      const predictions = game_state.limit_time_get_prediction(-1);
       if (null === predictions || 0 === predictions.length) {
         break;
       }
@@ -218,8 +215,9 @@ class MapGenerator {
           }
         }
       }
-      game_state.reset(temp_map, remaining_mines);
-    } while (Date.now() - start_time <= ONE_GRID_TIME_LIMIT);
+      game_state.reset(0, remaining_mines, temp_map, false);
+    } while (true);
+    // } while (Date.now() - start_time <= ONE_GRID_TIME_LIMIT);
     return false;
   }
   static clamp(x, lo, hi) {
@@ -262,6 +260,14 @@ class MapGenerator {
     let grid = null;
     let start_time = Date.now();
     let successful = false;
+    const game_state = new MinesweeperState(
+      0,
+      mines,
+      Array.from({ length: rows }, () =>
+        Array.from({ length: cols }, () => MinesweeperState.BLANK),
+      ),
+      false,
+    );
     do {
       grid = MapGenerator.generate_first_avoided_map(
         rows,
@@ -272,6 +278,7 @@ class MapGenerator {
       );
       if (
         MapGenerator.is_no_guess_solution(
+          game_state,
           grid,
           mines,
           first_click_row,

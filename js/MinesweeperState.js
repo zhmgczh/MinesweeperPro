@@ -86,7 +86,7 @@ class MinesweeperState {
   #final_remaining_mines_possibilities = null;
   #all_points = null;
   #all_blanks = null;
-  #search_stop_before;
+  #search_stop_before = -1;
   #force_stopped = false;
   #prediction_tag = null;
   #index_map = null;
@@ -133,6 +133,55 @@ class MinesweeperState {
       this.#point_pool[i][j] = new Pair(i, j);
     }
   }
+  get_time_passed() {
+    return this.#time_passed;
+  }
+  get_remaining_mines() {
+    return this.#remaining_mines;
+  }
+  get_map() {
+    return this.#map;
+  }
+  get_nrows() {
+    return this.#nrows;
+  }
+  get_ncols() {
+    return this.#ncols;
+  }
+  get_state(i, j) {
+    if (i >= 0 && i < this.#nrows && j >= 0 && j < this.#ncols) {
+      return this.#map[i][j];
+    }
+    return " ";
+  }
+  static get_map_as_string(map) {
+    let result = "";
+    for (let i = 0; i < map[0].length; ++i) {
+      result += map[0][i];
+      for (let j = 1; j < map.length; ++j) {
+        result += " " + map[j][i];
+      }
+      result += "\n";
+    }
+    return result;
+  }
+  get_map_as_string() {
+    return MinesweeperState.get_map_as_string(this.#map);
+  }
+  toString() {
+    return (
+      "Time passed: " +
+      this.#time_passed +
+      " Remaining mines: " +
+      this.#remaining_mines +
+      "\nWidth: " +
+      this.#nrows +
+      " Height: " +
+      this.#ncols +
+      "\n" +
+      this.get_map_as_string()
+    );
+  }
   static is_valid_operand(c) {
     return MinesweeperState.operands.includes(c);
   }
@@ -164,8 +213,13 @@ class MinesweeperState {
     if (force_finished && mines !== target) return false;
     return mines <= target && mines + blanks >= target;
   }
+  check_number_valid(i, j, force_finished) {
+    return MinesweeperState.check_number_valid(this.#map, i, j, force_finished);
+  }
   static check_map_valid(map, remaining_mines, force_finished) {
-    if (force_finished && remaining_mines !== 0) return false;
+    if (force_finished && remaining_mines !== 0) {
+      return false;
+    }
     let blanks = 0;
     for (let i = 0; i < map.length; ++i) {
       for (let j = 0; j < map[0].length; ++j) {
@@ -174,8 +228,9 @@ class MinesweeperState {
           ++blanks;
         }
         if (!MinesweeperState.is_valid_operand(map[i][j])) return false;
-        if (!MinesweeperState.check_number_valid(map, i, j, force_finished))
+        if (!MinesweeperState.check_number_valid(map, i, j, force_finished)) {
           return false;
+        }
       }
     }
     return remaining_mines <= blanks;
@@ -236,7 +291,7 @@ class MinesweeperState {
     return true;
   }
   #check_temp_map_positions_valid(all_points, remaining_mines, force_finished) {
-    if (force_finished && 0 !== remaining_mines) {
+    if (force_finished && remaining_mines !== 0) {
       return false;
     }
     for (const point of all_points) {
@@ -617,6 +672,43 @@ class MinesweeperState {
     }
     return blocks;
   }
+  #search_unfinished(
+    target_points,
+    base_offset,
+    remaining_mines,
+    number_of_blanks,
+    force_finished,
+  ) {
+    if (!this.#force_stopped) {
+      this.#search(
+        target_points,
+        base_offset,
+        0,
+        remaining_mines,
+        number_of_blanks,
+        force_finished,
+      );
+    }
+    return this.#force_stopped;
+  }
+  #search_iterative_unfinished(
+    target_points,
+    base_offset,
+    remaining_mines,
+    number_of_blanks,
+    force_finished,
+  ) {
+    if (!this.#force_stopped) {
+      this.#search_iterative(
+        target_points,
+        base_offset,
+        remaining_mines,
+        number_of_blanks,
+        force_finished,
+      );
+    }
+    return this.#force_stopped;
+  }
   #initialize_temp_map() {
     if (
       null === this.#temp_map ||
@@ -642,8 +734,7 @@ class MinesweeperState {
       }
     }
   }
-  #initialize_get_predictions(search_stop_before) {
-    this.#search_stop_before = search_stop_before;
+  #initialize_get_predictions() {
     this.#force_stopped = false;
     if (null === this.#all_points) {
       this.#all_points = [];
@@ -735,8 +826,8 @@ class MinesweeperState {
     }
     return false;
   }
-  get_predictions(search_stop_before) {
-    this.#initialize_get_predictions(search_stop_before);
+  get_predictions() {
+    this.#initialize_get_predictions();
     const predictions = [];
     if (this.#remaining_mines === 0) {
       this.#all_blanks.forEach((p) =>
@@ -766,14 +857,15 @@ class MinesweeperState {
       this.#initialize_temp_map();
       this.#initialize_possibility_map(target_points);
       for (const block of blocks) {
-        this.#search_iterative(
-          block,
-          target_points_max_length,
-          this.#remaining_mines,
-          this.#all_blanks.length,
-          1 === blocks.length && all_blanks_included,
-        );
-        if (this.#force_stopped) {
+        if (
+          this.#search_iterative_unfinished(
+            block,
+            target_points_max_length,
+            this.#remaining_mines,
+            this.#all_blanks.length,
+            1 === blocks.length && all_blanks_included,
+          )
+        ) {
           return predictions;
         }
         if (
@@ -795,14 +887,15 @@ class MinesweeperState {
       ) {
         target_points = this.#all_points;
         this.#initialize_possibility_map(target_points);
-        this.#search_iterative(
-          target_points,
-          0,
-          this.#remaining_mines,
-          this.#all_blanks.length,
-          all_blanks_included,
-        );
-        if (this.#force_stopped) {
+        if (
+          this.#search_iterative_unfinished(
+            target_points,
+            0,
+            this.#remaining_mines,
+            this.#all_blanks.length,
+            all_blanks_included,
+          )
+        ) {
           return predictions;
         }
         if (
@@ -846,9 +939,11 @@ class MinesweeperState {
   }
   limit_time_get_prediction(time_upper_limit) {
     if (time_upper_limit < 0) {
-      return this.get_predictions(-1);
+      this.#search_stop_before = -1;
+    } else {
+      this.#search_stop_before = Date.now() + time_upper_limit;
     }
-    return this.get_predictions(Date.now() + time_upper_limit);
+    return this.get_predictions();
   }
 }
 export { MinesweeperState };

@@ -81,14 +81,14 @@ class MinesweeperState {
   #ncols;
   #map;
   #point_pool;
-  #temp_map;
-  #possibility_map;
+  #temp_map = null;
+  #possibility_map = null;
   #final_remaining_mines_possibilities = null;
-  #all_points;
-  #all_blanks;
+  #all_points = null;
+  #all_blanks = null;
   #search_stop_before;
   #force_stopped = false;
-  #prediction_tag;
+  #prediction_tag = null;
   #index_map = null;
   #call_counter = 0;
   constructor(time_passed, remaining_mines, map, check = true) {
@@ -617,33 +617,59 @@ class MinesweeperState {
     }
     return blocks;
   }
-  #initPossibilityMap(target_points) {
-    this.#possibility_map = [];
-    for (let i = 0; i < target_points.length; ++i) {
-      this.#possibility_map.push(new Set());
-    }
-    if (null === this.#final_remaining_mines_possibilities) {
-      this.#final_remaining_mines_possibilities = new Set();
-    }
-    this.#final_remaining_mines_possibilities.clear();
-  }
   #initialize_temp_map() {
-    this.#temp_map = this.#map.map((row) =>
-      row.map((cell) =>
-        MinesweeperState.is_unfinished_operand(cell)
-          ? MinesweeperState.BLANK
-          : cell,
-      ),
-    );
+    if (
+      null === this.#temp_map ||
+      this.#temp_map.length !== this.#nrows ||
+      this.#temp_map[0].length !== this.#ncols
+    ) {
+      this.#temp_map = this.#map.map((row) =>
+        row.map((cell) =>
+          MinesweeperState.is_unfinished_operand(cell)
+            ? MinesweeperState.BLANK
+            : cell,
+        ),
+      );
+    } else {
+      for (let i = 0; i < this.#nrows; ++i) {
+        for (let j = 0; j < this.#ncols; ++j) {
+          if (MinesweeperState.is_unfinished_operand(this.#map[i][j])) {
+            this.#temp_map[i][j] = MinesweeperState.BLANK;
+          } else {
+            this.#temp_map[i][j] = this.#map[i][j];
+          }
+        }
+      }
+    }
   }
   #initialize_get_predictions(search_stop_before) {
     this.#search_stop_before = search_stop_before;
     this.#force_stopped = false;
-    this.#all_points = [];
-    this.#all_blanks = [];
-    this.#prediction_tag = Array.from({ length: this.#nrows }, () =>
-      new Array(this.#ncols).fill(false),
-    );
+    if (null === this.#all_points) {
+      this.#all_points = [];
+    } else {
+      this.#all_points.length = 0;
+    }
+    if (null === this.#all_blanks) {
+      this.#all_blanks = [];
+    } else {
+      this.#all_blanks.length = 0;
+    }
+    if (
+      null === this.#prediction_tag ||
+      this.#prediction_tag.length !== this.#nrows ||
+      this.#prediction_tag[0].length !== this.#ncols
+    ) {
+      this.#prediction_tag = Array.from({ length: this.#nrows }, () =>
+        new Array(this.#ncols).fill(false),
+      );
+    } else {
+      for (let i = 0; i < this.#nrows; ++i) {
+        for (let j = 0; j < this.#ncols; ++j) {
+          this.#prediction_tag[i][j] = false;
+        }
+      }
+    }
     const visited = Array.from({ length: this.#nrows }, () =>
       new Array(this.#ncols).fill(false),
     );
@@ -675,6 +701,26 @@ class MinesweeperState {
           }
         }
       }
+    }
+  }
+  #initialize_possibility_map(target_points) {
+    if (
+      null === this.#possibility_map ||
+      this.#possibility_map.length !== target_points.length
+    ) {
+      this.#possibility_map = [];
+      for (let i = 0; i < target_points.length; ++i) {
+        this.#possibility_map.push(new Set());
+      }
+    } else {
+      for (let i = 0; i < target_points.length; ++i) {
+        this.#possibility_map[i].clear();
+      }
+    }
+    if (null === this.#final_remaining_mines_possibilities) {
+      this.#final_remaining_mines_possibilities = new Set();
+    } else {
+      this.#final_remaining_mines_possibilities.clear();
     }
   }
   #summarize_predictions_failed(target_points, start, end, predictions) {
@@ -718,7 +764,7 @@ class MinesweeperState {
       let target_points = this.#all_points;
       let target_points_max_length = 0;
       this.#initialize_temp_map();
-      this.#initPossibilityMap(target_points);
+      this.#initialize_possibility_map(target_points);
       for (const block of blocks) {
         this.#search_iterative(
           block,
@@ -748,7 +794,7 @@ class MinesweeperState {
         0 === predictions.length
       ) {
         target_points = this.#all_points;
-        this.#initPossibilityMap(target_points);
+        this.#initialize_possibility_map(target_points);
         this.#search_iterative(
           target_points,
           0,

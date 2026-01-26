@@ -206,9 +206,16 @@ class MinesweeperState {
       const ni = i + di,
         nj = j + dj;
       if (ni >= 0 && ni < map.length && nj >= 0 && nj < map[0].length) {
-        if (MinesweeperState.MINE_FLAG === map[ni][nj]) {
+        if (
+          MinesweeperState.MINE_FLAG === map[ni][nj] ||
+          MinesweeperState.MINE_EXPLODED === map[ni][nj] ||
+          MinesweeperState.MINE_UNFOUND === map[ni][nj]
+        ) {
           ++mines;
-        } else if (MinesweeperState.is_unfinished_operand(map[ni][nj])) {
+        } else if (
+          MinesweeperState.is_unfinished_operand(map[ni][nj]) ||
+          MinesweeperState.MINE_WRONGLY_FLAGGED === map[ni][nj]
+        ) {
           ++blanks;
         }
       }

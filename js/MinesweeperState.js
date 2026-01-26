@@ -646,7 +646,11 @@ class MinesweeperState {
     return blocks;
   }
   #get_blocks_raw() {
-    if (null === this.#index_map) {
+    if (
+      null === this.#index_map ||
+      this.#index_map.length !== this.#nrows ||
+      this.#index_map[0].length !== this.#ncols
+    ) {
       this.#index_map = Array.from(
         { length: this.#nrows },
         () => new Int32Array(this.#ncols),

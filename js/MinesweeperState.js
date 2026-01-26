@@ -87,6 +87,7 @@ class MinesweeperState {
   #all_points = null;
   #all_blanks = null;
   #search_stop_before = -1;
+  #mines_already_determined;
   #force_stopped = false;
   #prediction_tag = null;
   #index_map = null;
@@ -748,6 +749,7 @@ class MinesweeperState {
   }
   #initialize_get_predictions() {
     this.#force_stopped = false;
+    this.#mines_already_determined = 0;
     if (null === this.#all_points) {
       this.#all_points = [];
     } else {
@@ -833,7 +835,11 @@ class MinesweeperState {
       if (0 === possibilities.size) {
         return true;
       } else if (1 === possibilities.size) {
-        predictions.push(new Pair(p, possibilities.values().next().value));
+        const state = possibilities.values().next().value;
+        predictions.push(new Pair(p, state));
+        if (MinesweeperState.MINE_FLAG === state) {
+          ++this.#mines_already_determined;
+        }
       }
     }
     return false;
@@ -873,7 +879,7 @@ class MinesweeperState {
           this.#search_iterative_unfinished(
             block,
             target_points_max_length,
-            this.#remaining_mines,
+            this.#remaining_mines - this.#mines_already_determined,
             this.#all_blanks.length - predictions.length,
             1 === blocks.length && all_blanks_included,
           )

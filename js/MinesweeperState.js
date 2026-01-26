@@ -277,6 +277,29 @@ class MinesweeperState {
     }
     return numbers;
   }
+  #check_temp_map_number_valid(i, j, force_finished) {
+    let mines = 0;
+    let blanks = 0;
+    for (const [di, dj] of MinesweeperState.unit_vectors) {
+      const ni = i + di,
+        nj = j + dj;
+      if (
+        ni >= 0 &&
+        ni < this.#temp_map.length &&
+        nj >= 0 &&
+        nj < this.#temp_map[0].length
+      ) {
+        if (MinesweeperState.MINE_FLAG === this.#temp_map[ni][nj]) {
+          ++mines;
+        } else if (MinesweeperState.BLANK === this.#temp_map[ni][nj]) {
+          ++blanks;
+        }
+      }
+    }
+    const target = MinesweeperState.to_number(this.#temp_map[i][j]);
+    if (force_finished && mines !== target) return false;
+    return mines <= target && mines + blanks >= target;
+  }
   #check_temp_map_position_valid(i, j, force_finished) {
     for (const [di, dj] of MinesweeperState.unit_vectors) {
       const ni = i + di,
@@ -288,14 +311,7 @@ class MinesweeperState {
         nj < this.#ncols &&
         MinesweeperState.is_number(this.#map[ni][nj])
       ) {
-        if (
-          !MinesweeperState.check_number_valid(
-            this.#temp_map,
-            ni,
-            nj,
-            force_finished,
-          )
-        )
+        if (!this.#check_temp_map_number_valid(ni, nj, force_finished))
           return false;
       }
     }

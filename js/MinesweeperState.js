@@ -205,8 +205,11 @@ class MinesweeperState {
       const ni = i + di,
         nj = j + dj;
       if (ni >= 0 && ni < map.length && nj >= 0 && nj < map[0].length) {
-        if (MinesweeperState.MINE_FLAG === map[ni][nj]) ++mines;
-        else if (MinesweeperState.is_unfinished_operand(map[ni][nj])) ++blanks;
+        if (MinesweeperState.MINE_FLAG === map[ni][nj]) {
+          ++mines;
+        } else if (MinesweeperState.is_unfinished_operand(map[ni][nj])) {
+          ++blanks;
+        }
       }
     }
     const target = MinesweeperState.to_number(map[i][j]);
@@ -290,43 +293,28 @@ class MinesweeperState {
     }
     return true;
   }
-  #check_temp_map_positions_valid(all_points, remaining_mines, force_finished) {
-    if (force_finished && remaining_mines !== 0) {
+  #check_final_status_valid(remaining_mines, remaining_blanks, force_finished) {
+    if (force_finished && (remaining_mines !== 0 || remaining_blanks !== 0)) {
       return false;
     }
-    for (const point of all_points) {
-      if (
-        !this.#check_temp_map_position_valid(
-          point.getFirst(),
-          point.getSecond(),
-          force_finished,
-        )
-      ) {
+    return 0 <= remaining_mines && remaining_mines <= remaining_blanks;
+  }
+  #quick_set_and_check_valid(start_index, all_points, value) {
+    for (let i = start_index; i < all_points.length; ++i) {
+      const point = all_points[i];
+      const point_x = point.getFirst();
+      const point_y = point.getSecond();
+      this.#temp_map[point_x][point_y] = value;
+      if (!this.#check_temp_map_position_valid(point_x, point_y, false)) {
         return false;
       }
     }
-    let current_blanks = 0;
-    for (let r = 0; r < this.#nrows; ++r) {
-      for (let c = 0; c < this.#ncols; ++c) {
-        if (MinesweeperState.is_unfinished_operand(this.#temp_map[r][c])) {
-          if (force_finished) {
-            return false;
-          }
-          ++current_blanks;
-        }
-      }
-    }
-    return 0 <= remaining_mines && remaining_mines <= current_blanks;
-  }
-  #quick_set(start_index, all_points, value) {
-    for (let i = start_index; i < all_points.length; ++i) {
-      this.#temp_map[all_points[i].getFirst()][all_points[i].getSecond()] =
-        value;
-    }
+    return true;
   }
   #quick_reset(all_points, start_index) {
     for (let i = start_index; i < all_points.length; ++i) {
-      this.#temp_map[all_points[i].getFirst()][all_points[i].getSecond()] =
+      const point = all_points[i];
+      this.#temp_map[point.getFirst()][point.getSecond()] =
         MinesweeperState.BLANK;
     }
   }
@@ -351,9 +339,9 @@ class MinesweeperState {
     }
     if (point_index === all_points.length) {
       if (
-        this.#check_temp_map_positions_valid(
-          all_points,
+        this.#check_final_status_valid(
           remaining_mines,
+          number_of_blanks - all_points.length,
           force_finished,
         )
       ) {
@@ -366,26 +354,40 @@ class MinesweeperState {
         this.#final_remaining_mines_possibilities.add(remaining_mines);
       }
     } else if (0 === remaining_mines) {
-      this.#quick_set(point_index, all_points, MinesweeperState.ZERO);
-      this.#search(
-        all_points,
-        base_offset,
-        all_points.length,
-        0,
-        number_of_blanks,
-        force_finished,
-      );
+      if (
+        this.#quick_set_and_check_valid(
+          point_index,
+          all_points,
+          MinesweeperState.ZERO,
+        )
+      ) {
+        this.#search(
+          all_points,
+          base_offset,
+          all_points.length,
+          0,
+          number_of_blanks,
+          force_finished,
+        );
+      }
       this.#quick_reset(all_points, point_index);
     } else if (number_of_blanks - point_index === remaining_mines) {
-      this.#quick_set(point_index, all_points, MinesweeperState.MINE_FLAG);
-      this.#search(
-        all_points,
-        base_offset,
-        all_points.length,
-        0,
-        number_of_blanks,
-        force_finished,
-      );
+      if (
+        this.#quick_set_and_check_valid(
+          point_index,
+          all_points,
+          MinesweeperState.MINE_FLAG,
+        )
+      ) {
+        this.#search(
+          all_points,
+          base_offset,
+          all_points.length,
+          0,
+          number_of_blanks,
+          force_finished,
+        );
+      }
       this.#quick_reset(all_points, point_index);
     } else {
       const p = all_points[point_index];
@@ -456,9 +458,9 @@ class MinesweeperState {
         }
         if (cur_point_index === all_points.length) {
           if (
-            this.#check_temp_map_positions_valid(
-              all_points,
+            this.#check_final_status_valid(
               cur_remaining_mines,
+              number_of_blanks - all_points.length,
               force_finished,
             )
           ) {
@@ -473,25 +475,35 @@ class MinesweeperState {
           continue;
         }
         if (0 === cur_remaining_mines) {
-          this.#quick_set(cur_point_index, all_points, MinesweeperState.ZERO);
           stack_stage[stack_pointer] = 1;
-          ++stack_pointer;
-          stack_point_index[stack_pointer] = all_points.length;
-          stack_remaining_mines[stack_pointer] = 0;
-          stack_stage[stack_pointer] = 0;
+          if (
+            this.#quick_set_and_check_valid(
+              cur_point_index,
+              all_points,
+              MinesweeperState.ZERO,
+            )
+          ) {
+            ++stack_pointer;
+            stack_point_index[stack_pointer] = all_points.length;
+            stack_remaining_mines[stack_pointer] = 0;
+            stack_stage[stack_pointer] = 0;
+          }
           continue;
         }
         if (number_of_blanks - cur_point_index === cur_remaining_mines) {
-          this.#quick_set(
-            cur_point_index,
-            all_points,
-            MinesweeperState.MINE_FLAG,
-          );
           stack_stage[stack_pointer] = 2;
-          ++stack_pointer;
-          stack_point_index[stack_pointer] = all_points.length;
-          stack_remaining_mines[stack_pointer] = 0;
-          stack_stage[stack_pointer] = 0;
+          if (
+            this.#quick_set_and_check_valid(
+              cur_point_index,
+              all_points,
+              MinesweeperState.MINE_FLAG,
+            )
+          ) {
+            ++stack_pointer;
+            stack_point_index[stack_pointer] = all_points.length;
+            stack_remaining_mines[stack_pointer] = 0;
+            stack_stage[stack_pointer] = 0;
+          }
           continue;
         }
         const p = all_points[cur_point_index];
@@ -821,7 +833,7 @@ class MinesweeperState {
       if (0 === possibilities.size) {
         return true;
       } else if (1 === possibilities.size) {
-        predictions.push(new Pair(p, Array.from(possibilities)[0]));
+        predictions.push(new Pair(p, possibilities.values().next().value));
       }
     }
     return false;
@@ -914,9 +926,9 @@ class MinesweeperState {
         0 === predictions.length &&
         1 === this.#final_remaining_mines_possibilities.size
       ) {
-        const final_remaining_mines = Array.from(
-          this.#final_remaining_mines_possibilities,
-        )[0];
+        const final_remaining_mines = this.#final_remaining_mines_possibilities
+          .values()
+          .next().value;
         if (0 === final_remaining_mines) {
           for (const point of this.#all_blanks) {
             if (!this.#prediction_tag[point.getFirst()][point.getSecond()]) {

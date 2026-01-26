@@ -1,36 +1,34 @@
 class RawGraph {
-  static Edge = class Edge {
-    constructor(to, weight) {
-      this.to = to;
-      this.weight = weight;
-    }
-  };
-  static Node = class Node {
+  static #Node = class Node {
     constructor(to, weight) {
       this.to = to;
       this.weight = weight;
       this.next = null;
     }
   };
+  #head;
   constructor(n) {
-    this.head = new Array(n).fill(null);
+    this.#head = new Array(n).fill(null);
   }
   add_edge(u, v, w) {
-    const node = new RawGraph.Node(v, w);
-    node.next = this.head[u];
-    this.head[u] = node;
+    const node = new RawGraph.#Node(v, w);
+    node.next = this.#head[u];
+    this.#head[u] = node;
   }
   get_neighbors(u) {
-    const self = this;
+    const headRef = this.#head;
     return {
       [Symbol.iterator]() {
-        let current = self.head[u];
+        let current = headRef[u];
         return {
           next() {
             if (current == null) {
               return { done: true, value: undefined };
             }
-            const edge = new RawGraph.Edge(current.to, current.weight);
+            const edge = {
+              to: current.to,
+              weight: current.weight,
+            };
             current = current.next;
             return { done: false, value: edge };
           },
@@ -39,7 +37,7 @@ class RawGraph {
     };
   }
   get_bfs_order(root) {
-    const size = this.head.length;
+    const size = this.#head.length;
     const visited = new Uint8Array(size);
     const queue = new Int32Array(size);
     const bfs = [];
@@ -50,7 +48,7 @@ class RawGraph {
     while (head < tail) {
       const node = queue[head++];
       bfs.push(node);
-      let cursor = this.head[node];
+      let cursor = this.#head[node];
       while (cursor !== null) {
         const to = cursor.to;
         if (!visited[to]) {

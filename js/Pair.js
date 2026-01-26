@@ -12,9 +12,12 @@ class Pair {
     return this.#second;
   }
   equals(o) {
-    if (this === o) return true;
-    if (o === null || o === undefined || o.constructor !== this.constructor)
+    if (this === o) {
+      return true;
+    }
+    if (o === null || o === undefined || o.constructor !== this.constructor) {
       return false;
+    }
     const pair = o;
     const f1 = this.#first;
     const f2 = pair.getFirst();
@@ -24,7 +27,9 @@ class Pair {
           ? f1.equals(f2)
           : f1 === f2
         : f2 === null || f2 === undefined;
-    if (!firstEqual) return false;
+    if (!firstEqual) {
+      return false;
+    }
     const s1 = this.#second;
     const s2 = pair.getSecond();
     return s1 !== null && s1 !== undefined
@@ -33,20 +38,24 @@ class Pair {
         : s1 === s2
       : s2 === null || s2 === undefined;
   }
+  static #getHash = (obj) => {
+    if (obj === null || obj === undefined) {
+      return 0;
+    }
+    if (typeof obj.hashCode === "function") {
+      return obj.hashCode();
+    }
+    const s = String(obj);
+    let h = 0;
+    for (let i = 0; i < s.length; i++) {
+      h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+    }
+    return h;
+  };
   hashCode() {
-    const getHash = (obj) => {
-      if (obj === null || obj === undefined) return 0;
-      if (typeof obj.hashCode === "function") return obj.hashCode();
-      const s = String(obj);
-      let h = 0;
-      for (let i = 0; i < s.length; i++) {
-        h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
-      }
-      return h;
-    };
     let result = 1;
-    result = (31 * result + getHash(this.#first)) | 0;
-    result = (31 * result + getHash(this.#second)) | 0;
+    result = (31 * result + Pair.#getHash(this.#first)) | 0;
+    result = (31 * result + Pair.#getHash(this.#second)) | 0;
     return result;
   }
   toString() {

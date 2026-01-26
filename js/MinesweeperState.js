@@ -199,7 +199,9 @@ class MinesweeperState {
     return c.charCodeAt(0) - "0".charCodeAt(0);
   }
   static check_number_valid(map, i, j, force_finished) {
-    if (!MinesweeperState.is_number(map[i][j])) return true;
+    if (!MinesweeperState.is_number(map[i][j])) {
+      return true;
+    }
     let mines = 0;
     let blanks = 0;
     for (const [di, dj] of MinesweeperState.unit_vectors) {
@@ -221,7 +223,9 @@ class MinesweeperState {
       }
     }
     const target = MinesweeperState.to_number(map[i][j]);
-    if (force_finished && mines !== target) return false;
+    if (force_finished && mines !== target) {
+      return false;
+    }
     return mines <= target && mines + blanks >= target;
   }
   check_number_valid(i, j, force_finished) {
@@ -235,10 +239,14 @@ class MinesweeperState {
     for (let i = 0; i < map.length; ++i) {
       for (let j = 0; j < map[0].length; ++j) {
         if (MinesweeperState.is_unfinished_operand(map[i][j])) {
-          if (force_finished) return false;
+          if (force_finished) {
+            return false;
+          }
           ++blanks;
         }
-        if (!MinesweeperState.is_valid_operand(map[i][j])) return false;
+        if (!MinesweeperState.is_valid_operand(map[i][j])) {
+          return false;
+        }
         if (!MinesweeperState.check_number_valid(map, i, j, force_finished)) {
           return false;
         }
@@ -251,10 +259,14 @@ class MinesweeperState {
     let unfinished = false;
     for (let i = 0; i < this.#nrows; ++i) {
       for (let j = 0; j < this.#ncols; ++j) {
-        if (MinesweeperState.is_lost_operand(this.#map[i][j])) return "L";
-        if (MinesweeperState.is_number(this.#map[i][j])) started = true;
-        else if (MinesweeperState.is_unfinished_operand(this.#map[i][j]))
+        if (MinesweeperState.is_lost_operand(this.#map[i][j])) {
+          return "L";
+        }
+        if (MinesweeperState.is_number(this.#map[i][j])) {
+          started = true;
+        } else if (MinesweeperState.is_unfinished_operand(this.#map[i][j])) {
           unfinished = true;
+        }
       }
     }
     return started ? (unfinished ? "P" : "W") : "S";
@@ -297,7 +309,9 @@ class MinesweeperState {
       }
     }
     const target = MinesweeperState.to_number(this.#temp_map[i][j]);
-    if (force_finished && mines !== target) return false;
+    if (force_finished && mines !== target) {
+      return false;
+    }
     return mines <= target && mines + blanks >= target;
   }
   #check_temp_map_position_valid(i, j, force_finished) {
@@ -311,8 +325,9 @@ class MinesweeperState {
         nj < this.#ncols &&
         MinesweeperState.is_number(this.#map[ni][nj])
       ) {
-        if (!this.#check_temp_map_number_valid(ni, nj, force_finished))
+        if (!this.#check_temp_map_number_valid(ni, nj, force_finished)) {
           return false;
+        }
       }
     }
     return true;
@@ -350,7 +365,9 @@ class MinesweeperState {
     number_of_blanks,
     force_finished,
   ) {
-    if (this.#force_stopped) return;
+    if (this.#force_stopped) {
+      return;
+    }
     if (this.#search_stop_before > 0) {
       ++this.#call_counter;
       if (0 === (this.#call_counter & 1023)) {

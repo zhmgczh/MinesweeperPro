@@ -874,7 +874,7 @@ class MinesweeperState {
             block,
             target_points_max_length,
             this.#remaining_mines,
-            this.#all_blanks.length,
+            this.#all_blanks.length - predictions.length,
             1 === blocks.length && all_blanks_included,
           )
         ) {

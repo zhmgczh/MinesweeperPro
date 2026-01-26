@@ -299,7 +299,7 @@ class MinesweeperState {
     }
     return 0 <= remaining_mines && remaining_mines <= remaining_blanks;
   }
-  #quick_set_and_check_valid(start_index, all_points, value) {
+  #quick_set_and_check_valid(all_points, start_index, value) {
     for (let i = start_index; i < all_points.length; ++i) {
       const point = all_points[i];
       const point_x = point.getFirst();
@@ -356,8 +356,8 @@ class MinesweeperState {
     } else if (0 === remaining_mines) {
       if (
         this.#quick_set_and_check_valid(
-          point_index,
           all_points,
+          point_index,
           MinesweeperState.ZERO,
         )
       ) {
@@ -374,8 +374,8 @@ class MinesweeperState {
     } else if (number_of_blanks - point_index === remaining_mines) {
       if (
         this.#quick_set_and_check_valid(
-          point_index,
           all_points,
+          point_index,
           MinesweeperState.MINE_FLAG,
         )
       ) {
@@ -478,8 +478,8 @@ class MinesweeperState {
           stack_stage[stack_pointer] = 1;
           if (
             this.#quick_set_and_check_valid(
-              cur_point_index,
               all_points,
+              cur_point_index,
               MinesweeperState.ZERO,
             )
           ) {
@@ -494,8 +494,8 @@ class MinesweeperState {
           stack_stage[stack_pointer] = 2;
           if (
             this.#quick_set_and_check_valid(
-              cur_point_index,
               all_points,
+              cur_point_index,
               MinesweeperState.MINE_FLAG,
             )
           ) {

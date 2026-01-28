@@ -153,16 +153,29 @@ class MapGenerator {
       }
     }
   }
-  static stack_i = null;
-  static stack_j = null;
-  static stack_k = null;
-  static iterative_reveal_raw(temp_map, grid, startI, startJ, visited) {
+  static do_recursive_reveal(temp_map, grid, i, j, visited) {
+    if (
+      i < 0 ||
+      i >= grid.length ||
+      j < 0 ||
+      j >= grid[0].length ||
+      -1 === grid[i][j] ||
+      temp_map[i][j] !== MinesweeperState.BLANK
+    ) {
+      return;
+    }
+    MapGenerator.iterative_reveal(temp_map, grid, i, j, visited);
+  }
+  #stack_i = null;
+  #stack_j = null;
+  #stack_k = null;
+  #iterative_reveal_raw(temp_map, grid, startI, startJ, visited) {
     const rows = grid.length;
     const cols = grid[0].length;
     let ptr = 0;
-    MapGenerator.stack_i[ptr] = startI;
-    MapGenerator.stack_j[ptr] = startJ;
-    MapGenerator.stack_k[ptr] = 0;
+    this.#stack_i[ptr] = startI;
+    this.#stack_j[ptr] = startJ;
+    this.#stack_k[ptr] = 0;
     visited[startI][startJ] = true;
     const val = grid[startI][startJ];
     if (val !== -1) {
@@ -172,9 +185,9 @@ class MapGenerator {
       return;
     }
     while (ptr >= 0) {
-      const ci = MapGenerator.stack_i[ptr];
-      const cj = MapGenerator.stack_j[ptr];
-      const step = MapGenerator.stack_k[ptr];
+      const ci = this.#stack_i[ptr];
+      const cj = this.#stack_j[ptr];
+      const step = this.#stack_k[ptr];
       if (step < 8) {
         let ni = ci,
           nj = cj;
@@ -212,7 +225,7 @@ class MapGenerator {
             nj = cj + 1;
             break;
         }
-        ++MapGenerator.stack_k[ptr];
+        ++this.#stack_k[ptr];
         if (ni >= 0 && ni < rows && nj >= 0 && nj < cols && !visited[ni][nj]) {
           const nVal = grid[ni][nj];
           visited[ni][nj] = true;
@@ -221,9 +234,9 @@ class MapGenerator {
           }
           if (nVal === 0) {
             ++ptr;
-            MapGenerator.stack_i[ptr] = ni;
-            MapGenerator.stack_j[ptr] = nj;
-            MapGenerator.stack_k[ptr] = 0;
+            this.#stack_i[ptr] = ni;
+            this.#stack_j[ptr] = nj;
+            this.#stack_k[ptr] = 0;
           }
         }
       } else {
@@ -231,7 +244,7 @@ class MapGenerator {
       }
     }
   }
-  static do_recursive_reveal(temp_map, grid, i, j, visited) {
+  #do_recursive_reveal_raw(temp_map, grid, i, j, visited) {
     if (
       i < 0 ||
       i >= grid.length ||
@@ -242,9 +255,9 @@ class MapGenerator {
     ) {
       return;
     }
-    MapGenerator.iterative_reveal_raw(temp_map, grid, i, j, visited);
+    this.#iterative_reveal_raw(temp_map, grid, i, j, visited);
   }
-  static is_no_guess_solution(
+  #is_no_guess_solution(
     game_state,
     grid,
     mines,
@@ -260,7 +273,7 @@ class MapGenerator {
       Array.from({ length: grid[0].length }, () => MinesweeperState.BLANK),
     );
     game_state.reset(0, mines, temp_map, false);
-    MapGenerator.do_recursive_reveal(
+    this.#do_recursive_reveal_raw(
       temp_map,
       grid,
       first_click_row,
@@ -289,7 +302,7 @@ class MapGenerator {
             temp_map[i][j] = MinesweeperState.MINE_FLAG;
             --remaining_mines;
           } else {
-            MapGenerator.do_recursive_reveal(temp_map, grid, i, j, visited);
+            this.#do_recursive_reveal_raw(temp_map, grid, i, j, visited);
           }
         }
       }
@@ -318,13 +331,7 @@ class MapGenerator {
       60000,
     );
   }
-  static generate_no_guess_map(
-    rows,
-    cols,
-    mines,
-    first_click_row,
-    first_click_col,
-  ) {
+  generate_no_guess_map(rows, cols, mines, first_click_row, first_click_col) {
     let area = rows * cols;
     let SINGLE_STEP_TIME_LIMIT = MapGenerator.get_SINGLE_STEP_TIME_LIMIT(area);
     let ONE_GRID_TIME_LIMIT = MapGenerator.get_ONE_GRID_TIME_LIMIT(
@@ -335,10 +342,10 @@ class MapGenerator {
       ONE_GRID_TIME_LIMIT,
       area,
     );
-    if (null === MapGenerator.stack_i || MapGenerator.stack_i.length !== area) {
-      MapGenerator.stack_i = new Int32Array(area);
-      MapGenerator.stack_j = new Int32Array(area);
-      MapGenerator.stack_k = new Int32Array(area);
+    if (null === this.#stack_i || this.#stack_i.length !== area) {
+      this.#stack_i = new Int32Array(area);
+      this.#stack_j = new Int32Array(area);
+      this.#stack_k = new Int32Array(area);
     }
     let grid = null;
     let start_time = Date.now();
@@ -360,7 +367,7 @@ class MapGenerator {
         first_click_col,
       );
       if (
-        MapGenerator.is_no_guess_solution(
+        this.#is_no_guess_solution(
           game_state,
           grid,
           mines,

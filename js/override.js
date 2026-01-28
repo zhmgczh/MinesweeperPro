@@ -151,7 +151,8 @@ function requestuncover(n) {
                 if (finished) return;
                 let grid;
                 try {
-                  grid = MapGenerator.generate_no_guess_map(
+                  const generator = new MapGenerator();
+                  grid = generator.generate_no_guess_map(
                     rows,
                     cols,
                     mines,

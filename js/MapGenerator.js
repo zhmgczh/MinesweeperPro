@@ -143,13 +143,91 @@ class MapGenerator {
       const ni = top.next_i;
       const nj = top.next_j;
       if (top.next_j < top.max_j) {
-        top.next_j += 1;
+        ++top.next_j;
       } else {
-        top.next_i += 1;
+        ++top.next_i;
         top.next_j = top.min_j;
       }
       if (!visited[ni][nj]) {
         stack.push({ i: ni, j: nj, stage: 0 });
+      }
+    }
+  }
+  static stack_i = null;
+  static stack_j = null;
+  static stack_k = null;
+  static iterative_reveal_raw(temp_map, grid, startI, startJ, visited) {
+    const rows = grid.length;
+    const cols = grid[0].length;
+    let ptr = 0;
+    MapGenerator.stack_i[ptr] = startI;
+    MapGenerator.stack_j[ptr] = startJ;
+    MapGenerator.stack_k[ptr] = 0;
+    visited[startI][startJ] = true;
+    const val = grid[startI][startJ];
+    if (val !== -1) {
+      temp_map[startI][startJ] = String(val);
+    }
+    if (val !== 0) {
+      return;
+    }
+    while (ptr >= 0) {
+      const ci = MapGenerator.stack_i[ptr];
+      const cj = MapGenerator.stack_j[ptr];
+      const step = MapGenerator.stack_k[ptr];
+      if (step < 8) {
+        let ni = ci,
+          nj = cj;
+        switch (step) {
+          case 0:
+            ni = ci - 1;
+            nj = cj - 1;
+            break;
+          case 1:
+            ni = ci - 1;
+            nj = cj;
+            break;
+          case 2:
+            ni = ci - 1;
+            nj = cj + 1;
+            break;
+          case 3:
+            ni = ci;
+            nj = cj - 1;
+            break;
+          case 4:
+            ni = ci;
+            nj = cj + 1;
+            break;
+          case 5:
+            ni = ci + 1;
+            nj = cj - 1;
+            break;
+          case 6:
+            ni = ci + 1;
+            nj = cj;
+            break;
+          case 7:
+            ni = ci + 1;
+            nj = cj + 1;
+            break;
+        }
+        ++MapGenerator.stack_k[ptr];
+        if (ni >= 0 && ni < rows && nj >= 0 && nj < cols && !visited[ni][nj]) {
+          const nVal = grid[ni][nj];
+          visited[ni][nj] = true;
+          if (nVal !== -1) {
+            temp_map[ni][nj] = String(nVal);
+          }
+          if (nVal === 0) {
+            ++ptr;
+            MapGenerator.stack_i[ptr] = ni;
+            MapGenerator.stack_j[ptr] = nj;
+            MapGenerator.stack_k[ptr] = 0;
+          }
+        }
+      } else {
+        --ptr;
       }
     }
   }
@@ -164,7 +242,7 @@ class MapGenerator {
     ) {
       return;
     }
-    MapGenerator.iterative_reveal(temp_map, grid, i, j, visited);
+    MapGenerator.iterative_reveal_raw(temp_map, grid, i, j, visited);
   }
   static is_no_guess_solution(
     game_state,
@@ -257,6 +335,11 @@ class MapGenerator {
       ONE_GRID_TIME_LIMIT,
       area,
     );
+    if (null === MapGenerator.stack_i || MapGenerator.stack_i.length !== area) {
+      MapGenerator.stack_i = new Int32Array(area);
+      MapGenerator.stack_j = new Int32Array(area);
+      MapGenerator.stack_k = new Int32Array(area);
+    }
     let grid = null;
     let start_time = Date.now();
     let successful = false;

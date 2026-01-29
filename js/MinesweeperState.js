@@ -488,7 +488,7 @@ class MinesweeperState {
       while (length < max_depth) {
         length <<= 1;
       }
-      initialize_search_stack(length);
+      this.#initialize_search_stack(length);
     }
     let stack_pointer = 0;
     this.#stack_point_index[stack_pointer] = 0;

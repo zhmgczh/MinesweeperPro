@@ -92,6 +92,11 @@ class MinesweeperState {
   #prediction_tag = null;
   #index_map = null;
   #call_counter = 0;
+  #stack_point_index = null;
+  #stack_remaining_mines = null;
+  #stack_stage = null;
+  #stack_x = null;
+  #stack_y = null;
   constructor(time_passed, remaining_mines, map, check = true) {
     if (
       check &&
@@ -461,6 +466,13 @@ class MinesweeperState {
       this.#temp_map[p.getFirst()][p.getSecond()] = MinesweeperState.BLANK;
     }
   }
+  #initialize_search_stack(max_depth) {
+    this.#stack_point_index = new Int32Array(max_depth);
+    this.#stack_remaining_mines = new Int32Array(max_depth);
+    this.#stack_stage = new Int32Array(max_depth);
+    this.#stack_x = new Int32Array(max_depth);
+    this.#stack_y = new Int32Array(max_depth);
+  }
   #search_iterative(
     all_points,
     base_offset,
@@ -468,20 +480,24 @@ class MinesweeperState {
     number_of_blanks,
     force_finished,
   ) {
-    const maxDepth = all_points.length + 5;
-    const stack_point_index = new Int32Array(maxDepth);
-    const stack_remaining_mines = new Int32Array(maxDepth);
-    const stack_stage = new Int32Array(maxDepth);
-    const stack_x = new Int32Array(maxDepth);
-    const stack_y = new Int32Array(maxDepth);
+    const max_depth = all_points.length + 1;
+    if (null === this.#stack_point_index) {
+      this.#initialize_search_stack(max_depth);
+    } else if (this.#stack_point_index.length < max_depth) {
+      let length = this.#stack_point_index.length;
+      while (length < max_depth) {
+        length <<= 1;
+      }
+      initialize_search_stack(length);
+    }
     let stack_pointer = 0;
-    stack_point_index[stack_pointer] = 0;
-    stack_remaining_mines[stack_pointer] = remaining_mines;
-    stack_stage[stack_pointer] = 0;
+    this.#stack_point_index[stack_pointer] = 0;
+    this.#stack_remaining_mines[stack_pointer] = remaining_mines;
+    this.#stack_stage[stack_pointer] = 0;
     while (stack_pointer >= 0) {
-      let cur_point_index = stack_point_index[stack_pointer];
-      let cur_remaining_mines = stack_remaining_mines[stack_pointer];
-      if (stack_stage[stack_pointer] === 0) {
+      let cur_point_index = this.#stack_point_index[stack_pointer];
+      let cur_remaining_mines = this.#stack_remaining_mines[stack_pointer];
+      if (this.#stack_stage[stack_pointer] === 0) {
         if (this.#force_stopped) {
           --stack_pointer;
           continue;
@@ -516,7 +532,7 @@ class MinesweeperState {
           continue;
         }
         if (0 === cur_remaining_mines) {
-          stack_stage[stack_pointer] = 1;
+          this.#stack_stage[stack_pointer] = 1;
           if (
             this.#quick_set_and_check_valid(
               all_points,
@@ -525,14 +541,14 @@ class MinesweeperState {
             )
           ) {
             ++stack_pointer;
-            stack_point_index[stack_pointer] = all_points.length;
-            stack_remaining_mines[stack_pointer] = 0;
-            stack_stage[stack_pointer] = 0;
+            this.#stack_point_index[stack_pointer] = all_points.length;
+            this.#stack_remaining_mines[stack_pointer] = 0;
+            this.#stack_stage[stack_pointer] = 0;
           }
           continue;
         }
         if (number_of_blanks - cur_point_index === cur_remaining_mines) {
-          stack_stage[stack_pointer] = 2;
+          this.#stack_stage[stack_pointer] = 2;
           if (
             this.#quick_set_and_check_valid(
               all_points,
@@ -541,63 +557,66 @@ class MinesweeperState {
             )
           ) {
             ++stack_pointer;
-            stack_point_index[stack_pointer] = all_points.length;
-            stack_remaining_mines[stack_pointer] = 0;
-            stack_stage[stack_pointer] = 0;
+            this.#stack_point_index[stack_pointer] = all_points.length;
+            this.#stack_remaining_mines[stack_pointer] = 0;
+            this.#stack_stage[stack_pointer] = 0;
           }
           continue;
         }
         const p = all_points[cur_point_index];
-        stack_x[stack_pointer] = p.getFirst();
-        stack_y[stack_pointer] = p.getSecond();
-        this.#temp_map[stack_x[stack_pointer]][stack_y[stack_pointer]] =
-          MinesweeperState.ZERO;
-        stack_stage[stack_pointer] = 3;
+        this.#stack_x[stack_pointer] = p.getFirst();
+        this.#stack_y[stack_pointer] = p.getSecond();
+        this.#temp_map[this.#stack_x[stack_pointer]][
+          this.#stack_y[stack_pointer]
+        ] = MinesweeperState.ZERO;
+        this.#stack_stage[stack_pointer] = 3;
         if (
           this.#check_temp_map_position_valid(
-            stack_x[stack_pointer],
-            stack_y[stack_pointer],
+            this.#stack_x[stack_pointer],
+            this.#stack_y[stack_pointer],
             false,
           )
         ) {
           ++stack_pointer;
-          stack_point_index[stack_pointer] = cur_point_index + 1;
-          stack_remaining_mines[stack_pointer] = cur_remaining_mines;
-          stack_stage[stack_pointer] = 0;
+          this.#stack_point_index[stack_pointer] = cur_point_index + 1;
+          this.#stack_remaining_mines[stack_pointer] = cur_remaining_mines;
+          this.#stack_stage[stack_pointer] = 0;
         }
         continue;
       }
-      if (stack_stage[stack_pointer] === 1) {
+      if (this.#stack_stage[stack_pointer] === 1) {
         this.#quick_reset(all_points, cur_point_index);
         --stack_pointer;
         continue;
       }
-      if (stack_stage[stack_pointer] === 2) {
+      if (this.#stack_stage[stack_pointer] === 2) {
         this.#quick_reset(all_points, cur_point_index);
         --stack_pointer;
         continue;
       }
-      if (stack_stage[stack_pointer] === 3) {
-        this.#temp_map[stack_x[stack_pointer]][stack_y[stack_pointer]] =
-          MinesweeperState.MINE_FLAG;
-        stack_stage[stack_pointer] = 4;
+      if (this.#stack_stage[stack_pointer] === 3) {
+        this.#temp_map[this.#stack_x[stack_pointer]][
+          this.#stack_y[stack_pointer]
+        ] = MinesweeperState.MINE_FLAG;
+        this.#stack_stage[stack_pointer] = 4;
         if (
           this.#check_temp_map_position_valid(
-            stack_x[stack_pointer],
-            stack_y[stack_pointer],
+            this.#stack_x[stack_pointer],
+            this.#stack_y[stack_pointer],
             false,
           )
         ) {
           ++stack_pointer;
-          stack_point_index[stack_pointer] = cur_point_index + 1;
-          stack_remaining_mines[stack_pointer] = cur_remaining_mines - 1;
-          stack_stage[stack_pointer] = 0;
+          this.#stack_point_index[stack_pointer] = cur_point_index + 1;
+          this.#stack_remaining_mines[stack_pointer] = cur_remaining_mines - 1;
+          this.#stack_stage[stack_pointer] = 0;
         }
         continue;
       }
-      if (stack_stage[stack_pointer] === 4) {
-        this.#temp_map[stack_x[stack_pointer]][stack_y[stack_pointer]] =
-          MinesweeperState.BLANK;
+      if (this.#stack_stage[stack_pointer] === 4) {
+        this.#temp_map[this.#stack_x[stack_pointer]][
+          this.#stack_y[stack_pointer]
+        ] = MinesweeperState.BLANK;
         --stack_pointer;
       }
     }

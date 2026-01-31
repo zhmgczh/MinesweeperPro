@@ -429,7 +429,7 @@ class MinesweeperState {
           all_points,
           base_offset,
           all_points.length,
-          0,
+          remaining_mines - (all_points.length - point_index),
           number_of_blanks,
           force_finished,
         );
@@ -558,7 +558,8 @@ class MinesweeperState {
           ) {
             ++stack_pointer;
             this.#stack_point_index[stack_pointer] = all_points.length;
-            this.#stack_remaining_mines[stack_pointer] = 0;
+            this.#stack_remaining_mines[stack_pointer] =
+              cur_remaining_mines - (all_points.length - cur_point_index);
             this.#stack_stage[stack_pointer] = 0;
           }
           continue;
@@ -933,10 +934,9 @@ class MinesweeperState {
       // }
       const all_blanks_included =
         this.#all_points.length === this.#all_blanks.length;
-      let target_points = this.#all_points;
       let target_points_max_length = 0;
       this.#initialize_temp_map();
-      this.#initialize_possibility_map(target_points);
+      this.#initialize_possibility_map(this.#all_points);
       for (const block of blocks) {
         if (
           this.#search_iterative_unfinished(
@@ -951,7 +951,7 @@ class MinesweeperState {
         }
         if (
           this.#summarize_predictions_failed(
-            target_points,
+            this.#all_points,
             target_points_max_length,
             target_points_max_length + block.length,
             predictions,
@@ -966,11 +966,10 @@ class MinesweeperState {
         blocks.length !== 1 &&
         0 === predictions.length
       ) {
-        target_points = this.#all_points;
-        this.#initialize_possibility_map(target_points);
+        this.#initialize_possibility_map(this.#all_points);
         if (
           this.#search_iterative_unfinished(
-            target_points,
+            this.#all_points,
             0,
             this.#remaining_mines,
             this.#all_blanks.length,
@@ -981,7 +980,7 @@ class MinesweeperState {
         }
         if (
           this.#summarize_predictions_failed(
-            target_points,
+            this.#all_points,
             0,
             target_points_max_length,
             predictions,
